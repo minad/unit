@@ -1,0 +1,298 @@
+units:
+  # SI base units
+  meter:
+    sym: m
+    def: meter
+  # use gram instead of kilogram to avoid millikilogram etc
+  gram:
+    sym: g
+    def: gram
+  second:
+    sym: s
+    def: second
+  ampere:
+    sym: A
+    def: ampere
+  kelvin:
+    sym: K
+    def: kelvin
+  mole:
+    sym: mol
+    def: mole
+  candela:
+    sym: cd
+    def: candela
+
+  # Computer units
+  bit:
+    sym: bit
+    def: bit
+  byte:
+    sym: B
+    def: 8 * bit
+
+  # Derived SI units
+  hertz:
+    sym: Hz
+    def: 1 / second
+  newton:
+    sym: N
+    def: kilogram * meter / second ^ 2
+  pascal:
+    sym: Pa
+    def: newton / meter ^ 2
+  joule:
+    sym: J
+    def: newton * meter
+  watt:
+    sym: W
+    def: joule * second
+  coloumb:
+    sym: C
+    def: ampere * second
+  volt:
+    sym: V
+    def: joule / coloumb
+  farad:
+    sym: F
+    def: coloumb / volt
+  ohm:
+    sym: Ω
+    def: volt / ampere
+  siemens:
+    sym: S
+    def: 1 / ohm
+  weber:
+    sym: Wb
+    def: volt / second
+  tesla:
+    sym: T
+    def: weber / meter ^ 2
+  henry:
+    sym: H
+    def: weber / ampere
+  celsius:
+    sym: °C
+    def: kelvin
+  lumen:
+    sym: lm
+    def: candela * steradiant
+  lux:
+    sym: lx
+    def: lm / meter ^ 2
+  becquerel:
+    sym: Bq
+    def: hertz
+  gray:
+    sym: Gy
+    def: joule / kilogram
+  sievert:
+    sym: Sv
+    def: gray
+
+  # Angular units
+  radiant:
+    sym: rad
+    def: 1
+  steradiant:
+    sym: sr
+    def: 1
+  degree:
+    sym: °
+    def: 180 * radiant / pi
+
+  # Special length units
+  inch:
+    sym: in
+    def: 0.0254 * meter
+  feet:
+    sym: ft
+    def: 0.3048 * meter
+  yard:
+    sym: yd
+    def: 0.9144 * meter
+  mile:
+    sym: mi
+    def: 1609.344 * meter
+  nmi:
+    sym: nmi
+    def: 1852 * meter
+  au:
+    sym: au
+    def: 149597900000 * meter
+  lightsecond:
+    sym: ls
+    def: 299792500 * meter
+  lightminute:
+    sym: lm
+    def: 17987550000 * meter
+  lightyear:
+    sym: ly
+    def: 9460528000000000 * meter
+  parsec:
+    sym: pc
+    def: 30856780000000000 * meter
+
+  # Time
+  minute:
+    sym: min
+    def: 60 * second
+  hour:
+    sym: h
+    def: 60 * minute
+  day:
+    sym: d
+    def: 24 * hour
+  year:
+    sym: a
+    def: 365 * day
+
+  # Energy units
+  electronvolt:
+    sym: eV
+    def: 1.602176487e-19 * joule
+
+  # Mass
+  tons:
+    sym: t
+    def: 1000 * kilogram
+  ounce:
+    sym: oz
+    def: 28.3495231 * gram
+  pound:
+    sym: lb
+    def: 16 * ounce
+
+  # Speed
+  kph:
+    sym: kph
+    def: kilometer / hour
+  mph:
+    sym: mph
+    def: mile / hour
+  knots:
+    sym: kt
+    def: nmi / hour
+
+  # Volume
+  liter:
+    sym: l
+    def: decimeter ^ 3
+
+prefixes:
+  # SI prefices
+  yotta:
+    sym:  Y
+    base: 10
+    exp:  24
+  zetta:
+    sym:  Z
+    base: 10
+    exp:  21
+  exa:
+    sym:  E
+    base: 10
+    exp:  18
+  peta:
+    sym:  P
+    base: 10
+    exp:  15
+  tera:
+    sym:  T
+    base: 10
+    exp:  12
+  giga:
+    sym:  G
+    base: 10
+    exp:  9
+  mega:
+    sym:  M
+    def:  1000000
+    base: 10
+    exp:  6
+  kilo:
+    sym:  k
+    base: 10
+    exp:  3
+  hecto:
+    sym:  h
+    base: 10
+    exp:  2
+  deca:
+    sym:  da
+    base: 10
+    exp:  1
+  deci:
+    sym:  d
+    base: 10
+    exp:  -1
+  centi:
+    sym:  c
+    base: 10
+    exp:  -2
+  milli:
+    sym:  m
+    base: 10
+    exp:  -3
+  micro:
+    sym:  µ
+    base: 10
+    exp:  -6
+  nano:
+    sym:  n
+    base: 10
+    exp:  -9
+  pico:
+    sym:  p
+    base: 10
+    exp:  -12
+  femto:
+    sym:  f
+    base: 10
+    exp:  -15
+  atto:
+    sym:  a
+    base: 10
+    exp:  -18
+  zepto:
+    sym:  z
+    base: 10
+    exp:  -21
+  yokto:
+    sym:  y
+    base: 10
+    exp:  -24
+
+  # Binary prefixes
+  kibi:
+    sym:  Ki
+    base: 2
+    exp:  10
+  mebi:
+    sym:  Mi
+    base: 2
+    exp:  20
+  gibi:
+    sym:  Gi
+    base: 2
+    exp:  30
+  tebi:
+    sym:  Ti
+    base: 2
+    exp:  40
+  pebi:
+    sym:  Pi
+    base: 2
+    exp:  50
+  exbi:
+    sym:  Ei
+    base: 2
+    exp:  60
+  zebi:
+    sym:  Zi
+    base: 2
+    exp:  70
+  zebi:
+    sym:  Yi
+    base: 2
+    exp:  80
