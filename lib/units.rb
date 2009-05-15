@@ -136,6 +136,10 @@ class Unit < Numeric
     (self / unit).normalize * unit
   end
 
+  def inspect
+    "Unit(#{numerator}/#{denominator}, #{unit.inspect})"
+  end
+
   def to_s
     s = ''
     s << @numerator.to_s
@@ -235,6 +239,10 @@ class Unit < Numeric
       r = Rational(@numerator, @denominator)
       @numerator = r.numerator
       @denominator = r.denominator
+    elsif Rational === @numerator || Rational === @denominator
+      r = @numerator / @denominator
+      @numerator = r.numerator
+      @denominator = r.denominator
     else
       @numerator /= @denominator
       @denominator = 1
@@ -300,7 +308,6 @@ class Unit < Numeric
         if implicit_mul
           stack << '*'
           result << val
-          compute(result, stack.pop)
         else
           result << val
           implicit_mul = true
@@ -345,7 +352,7 @@ class Unit < Numeric
   end
 
   UNITS, UNIT_SYMBOLS, PREFIXES, PREFIX_SYMBOLS = {}, {}, {}, {}
-  load_tables('units.yml')
+  load_tables(File.join(File.dirname(__FILE__), 'units.yml'))
 end
 
 def Unit(*args)
@@ -369,4 +376,3 @@ if !:test.respond_to? :<=>
     end
   end
 end
-
