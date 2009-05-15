@@ -5,9 +5,9 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 require 'test/spec'
 require 'units'
 
-Unit::DEFAULT_SYSTEM.load(:scientific)
-Unit::DEFAULT_SYSTEM.load(:imperial)
-Unit::DEFAULT_SYSTEM.load(:misc)
+Unit::System::DEFAULT.load(:scientific)
+Unit::System::DEFAULT.load(:imperial)
+Unit::System::DEFAULT.load(:misc)
 
 describe 'Unit' do
   it 'should support multiplication' do
@@ -84,7 +84,6 @@ describe 'Unit' do
     Unit(1, 'KiB/s').unit.should.equal [[:kibi, :byte, 1], [:one, :second, -1]].sort
     Unit(1, 'kilometer^2 / megaelectronvolt^7 * gram centiliter').unit.should.equal [[:kilo, :meter, 2], [:mega, :electronvolt, -7],
                                                                                      [:one, :gram, 1], [:centi, :liter, 1]].sort
-    Unit(1, 'my_unit / other_unit').unit.should.equal [[:one, :my_unit, 1], [:one, :other_unit, -1]].sort
   end
 
   it 'should reduce units' do
