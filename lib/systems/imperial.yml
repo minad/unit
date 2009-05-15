@@ -1,0 +1,37 @@
+units:
+  mil:
+    sym: mil
+    def: 25400 nanometer
+  inch:
+    sym: [in, inches]
+    def: 1000 mil
+  foot:
+    sym: [ft, feet]
+    def: 12 inch
+  yard:
+    sym: yd
+    def: 3 foot
+  mile:
+    sym: mi
+    def: 5280 feet
+  nauticalmile:
+    sym: nmi
+    def: 6080 feet
+
+  acre:
+    sym: ac
+    def: 43560 feet^2
+
+  ounce:
+    sym: oz
+    def: 28349523125 nanogramm
+  pound:
+    sym: lb
+    def: 16 oz
+
+  mph:
+    sym: mph
+    def: mile / hour
+  knot:
+    sym: kt
+    def: nmi / hour

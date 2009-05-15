@@ -1,0 +1,18 @@
+units:
+  are:
+    sym: a
+    def: 100 m^2
+
+  ton:
+    sym: t
+    def: 1 megagram
+  carat:
+    def: 200 milligram
+
+  liter:
+    sym: [l, L]
+    def: 1 decimeter^3
+
+  calorie:
+    sym: cal
+    def: 4184 millijoule

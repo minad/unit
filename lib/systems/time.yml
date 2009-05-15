@@ -1,0 +1,13 @@
+units:
+  minute:
+    sym: min
+    def: 60 * second
+  hour:
+    sym: h
+    def: 60 * minute
+  day:
+    sym: d
+    def: 24 * hour
+  year:
+    sym: a
+    def: 365 * day

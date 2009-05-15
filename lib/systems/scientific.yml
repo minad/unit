@@ -1,0 +1,25 @@
+units:
+  astronomicalunit:
+    sym: [au, AU, a.u., ua]
+    def: 149597900000 meter
+  lightsecond:
+    sym: ls
+    def: 299792500 meter
+  lightminute:
+    sym: lm
+    def: 17987550000 meter
+  lightyear:
+    sym: ly
+    def: 9460528000000000 meter
+  parsec:
+    sym: pc
+    def: 30856780000000000 meter
+  angstroem:
+    sym: Å
+    def: 100 picometer
+  electronvolt:
+    sym: eV
+    def: 1.602176487e-19 joule
+  atomicmass:
+    sym: [u, Da]
+    def: 1.660538782e-27 kilogram
