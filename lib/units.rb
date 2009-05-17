@@ -2,7 +2,7 @@
 require 'yaml'
 
 class Unit < Numeric
-  VERSION = '0.1'
+  VERSION = '0.2'
 
   attr_reader :numerator, :denominator, :unit, :normalized, :system
 
@@ -10,7 +10,7 @@ class Unit < Numeric
     @system = system
     @numerator = numerator
     @denominator = denominator
-    @unit = unit
+    @unit = unit.dup
     @normalized = nil
     reduce!
   end
@@ -19,7 +19,7 @@ class Unit < Numeric
     @system = other.system
     @numerator = other.numerator
     @denominator = other.denominator
-    @unit = other.unit
+    @unit = other.unit.dup
     @normalized = other.normalized
   end
 
@@ -224,6 +224,7 @@ class Unit < Numeric
     i, current = 1, 0
     while i < @unit.size do
       while i < @unit.size && @unit[current][0] == @unit[i][0] && @unit[current][1] == @unit[i][1]
+        @unit[current] = @unit[current].dup
         @unit[current][2] += @unit[i][2]
         i += 1
       end
@@ -237,13 +238,15 @@ class Unit < Numeric
     end
 
     # Reduce prefixes
-    @unit.each_with_index do |(prefix1, unit1, exp1), i|
+    @unit.each_with_index do |(prefix1, unit1, exp1), k|
       next if exp1 < 0
       @unit.each_with_index do |(prefix2, unit2, exp2), j|
         if exp2 < 0 && exp2 == -exp1
           q, r = @system.prefix[prefix1][:value].divmod @system.prefix[prefix2][:value]
           if r == 0 && new_prefix = @system.prefix_value[q]
-            @unit[i][0] = new_prefix
+            @unit[k] = @unit[k].dup
+            @unit[j] = @unit[j].dup
+            @unit[k][0] = new_prefix
             @unit[j][0] = :one
           end
         end
@@ -271,8 +274,8 @@ class Unit < Numeric
       block.call(self) if block
     end
 
-    def load(name)
-      data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{name}.yml"))
+    def load(filename)
+      data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{filename}.yml"))
 
       (data['prefixes'] || {}).each do |name, prefix|
         name = name.to_sym
@@ -304,8 +307,8 @@ class Unit < Numeric
       @unit.each {|name, unit| validate_unit(unit[:def]) }
     end
 
-    def validate_unit(unit)
-      unit.each do |prefix, unit, exp|
+    def validate_unit(units)
+      units.each do |prefix, unit, exp|
         #raise TypeError, 'Prefix must be symbol' if !(Symbol === prefix)
         #raise TypeError, 'Unit must be symbol' if !(Numeric === unit || Symbol === unit)
         #raise TypeError, 'Exponent must be numeric' if !(Numeric === exp)
@@ -315,8 +318,7 @@ class Unit < Numeric
     end
 
     def parse_unit(expr)
-      stack, result = [], []
-      implicit_mul = false
+      stack, result, implicit_mul = [], [], false
       expr.to_s.scan(TOKENIZER).each do |tok|
         if tok == '('
           stack << '('
@@ -336,13 +338,9 @@ class Unit < Numeric
                 when DEC    then [[:one, tok.to_i, 1]]
                 when SYMBOL then symbol_to_unit(tok)
                 end
-          if implicit_mul
-            stack << '*'
-            result << val
-          else
-            result << val
-            implicit_mul = true
-          end
+          stack << '*' if implicit_mul
+          implicit_mul = true
+          result << val
         end
       end
       compute(result, stack.pop) while !stack.empty?
@@ -438,7 +436,6 @@ class Numeric
   def method_missing(name, *args)
     Unit.method_name_to_unit(name).to_unit(*args) * self
   rescue TypeError => ex
-    puts ex
     super
   end
 
@@ -480,4 +477,3 @@ if !:test.respond_to? :<=>
     end
   end
 end
-
