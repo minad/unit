@@ -2,7 +2,7 @@
 require 'yaml'
 
 class Unit < Numeric
-  VERSION = '0.2'
+  VERSION = '0.1.1'
 
   attr_reader :numerator, :denominator, :unit, :normalized, :system
 
