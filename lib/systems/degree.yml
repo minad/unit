@@ -2,10 +2,9 @@ units:
   pi:
     sym: π
     def: 3.14159265358979323846
-
   degree:
-    sym: °
-    def: 180 * radiant / pi
+    sym: [°, deg]
+    def: pi radiant / 180
   arcminute:
     sym: \'
     def: degree / 60

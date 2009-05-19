@@ -8,6 +8,8 @@ units:
   day:
     sym: d
     def: 24 * hour
+  week:
+    def: 7 * day
   year:
     sym: a
     def: 365 * day

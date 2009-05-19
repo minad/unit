@@ -25,7 +25,7 @@ units:
 
   # Derived SI units
   radiant:
-    sym: rad
+    sym: [rad, radian]
     def: 1
   steradiant:
     sym: sr
@@ -70,7 +70,7 @@ units:
     sym: H
     def: weber / ampere
   celsius:
-    sym: °C
+    sym: [°C, ℃]
     def: kelvin
   lumen:
     sym: lm

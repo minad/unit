@@ -102,7 +102,7 @@ class Unit < Numeric
   def compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    a.unit == b.unit
+    (a.unit == b.unit) || (a == 0 || b == 0)
   end
 
   alias compatible_with? compatible?
@@ -123,14 +123,26 @@ class Unit < Numeric
     s << "/#{@denominator}" if @denominator != 1
     positive = @unit.select {|prefix, name, exp| exp >= 0 }
     negative = @unit.select {|prefix, name, exp| exp < 0 }
-    if positive.empty? && !negative.empty?
-      s << ' 1'
-    else
-      s << ' ' << unit_string(positive)
-    end
+    s << ' ' << unit_string(positive, '·') if !positive.empty?
     if !negative.empty?
-      s << '/' << unit_string(negative)
+      s << ' 1' if positive.empty?
+      s << '/' << unit_string(negative, '·')
     end
+    s
+  end
+
+  def to_tex
+    s = '\SI{'
+    s << @numerator.to_s
+    s << "/#{@denominator}" if @denominator != 1
+    positive = @unit.select {|prefix, name, exp| exp >= 0 }
+    negative = @unit.select {|prefix, name, exp| exp < 0 }
+    s << '}{' << unit_string(positive, '.') if !positive.empty?
+    if !negative.empty?
+      s << ' 1' if positive.empty?
+      s << '/' << unit_string(negative, '.')
+    end
+    s << '}'
     s
   end
 
@@ -146,7 +158,8 @@ class Unit < Numeric
     to_f.unit(unit)
   end
 
-  def to_unit(system)
+  def to_unit(system = nil)
+    system ||= Unit::System::DEFAULT
     raise TypeError, 'Different unit system' if @system != system
     self
   end
@@ -170,7 +183,7 @@ class Unit < Numeric
 
   private
 
-  def unit_string(list)
+  def unit_string(list, sep)
     units = []
     list.each do |prefix, name, exp|
       unit = ''
@@ -179,7 +192,7 @@ class Unit < Numeric
       unit << '^' << exp.abs.to_s if exp.abs != 1
       units << unit
     end
-    units.sort.join('·')
+    units.sort.join(sep)
   end
 
   def self.power_unit(unit, pow)
@@ -196,7 +209,7 @@ class Unit < Numeric
        if exp >= 0
          @numerator *= number ** exp
        else
-         @denominator *= number ** -exp
+         @denominator = number ** -exp
        end
     end
 
@@ -351,9 +364,9 @@ class Unit < Numeric
 
     REAL   = /^-?(?:(?:\d*\.\d+|\d+\.\d*)(?:[eE][-+]?\d+)?|\d+[eE][-+]?\d+)$/
     DEC    = /^-?\d+$/
-    SYMBOL = /^[a-zA-Z_][\w_]*$/
-    OPERATOR = { '/' => ['/', 1], '*' => ['*', 1], '·' => ['*', 1], '^' => ['^', 2] }
-    OPERATOR_TOKENS = OPERATOR.keys.map {|x| Regexp.quote(x) }
+    SYMBOL = /^[a-zA-Z_°'"][\w_°'"]*$/
+    OPERATOR = { '/' => ['/', 1], '*' => ['*', 1], '·' => ['*', 1], '^' => ['^', 2], '**' => ['^', 2] }
+    OPERATOR_TOKENS = OPERATOR.keys.sort_by {|x| -x.size }. map {|x| Regexp.quote(x) }
     VALUE_TOKENS = [REAL.source[1..-2], DEC.source[1..-2], SYMBOL.source[1..-2]]
     TOKENIZER = Regexp.new((OPERATOR_TOKENS + VALUE_TOKENS + ['\\(', '\\)']).join('|'))
 
@@ -457,6 +470,12 @@ class String
     unit = system.parse_unit(self)
     system.validate_unit(unit)
     Unit(1, 1, unit, system)
+  end
+end
+
+class Symbol
+  def to_unit(system = nil)
+    to_s.to_unit(system)
   end
 end
 

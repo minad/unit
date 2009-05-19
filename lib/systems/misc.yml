@@ -16,3 +16,7 @@ units:
   calorie:
     sym: cal
     def: 4184 millijoule
+
+  fahrenheit:
+    sym: [°F, ℉]
+    def: 1.8 celsius
