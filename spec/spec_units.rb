@@ -68,6 +68,7 @@ describe 'Unit' do
     1.MeV.in_joule.should.equal Unit(1.602176487e-13, 'joule')
     1.kilometer.in_meter.should.equal Unit(1000, 'meter')
     1.liter.in('meter^3').should.equal Unit(1, 1000, 'meter^3')
+    1.kilometer_per_hour.in_meter_per_second.should.equal Unit(5, 18, 'meter/second')
   end
 
   it 'should have a working compatible? method' do

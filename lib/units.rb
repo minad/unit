@@ -2,7 +2,7 @@
 require 'yaml'
 
 class Unit < Numeric
-  VERSION = '0.1.2'
+  VERSION = '0.1.3'
 
   attr_reader :numerator, :denominator, :unit, :normalized, :system
 
@@ -209,7 +209,7 @@ class Unit < Numeric
        if exp >= 0
          @numerator *= number ** exp
        else
-         @denominator = number ** -exp
+         @denominator *= number ** -exp
        end
     end
 
