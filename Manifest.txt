@@ -8,5 +8,5 @@ lib/systems/binary.yml
 lib/units.rb
 Rakefile
 README.markdown
-spec/spec_units.rb
+test/test_unit.rb
 Manifest.txt
