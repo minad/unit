@@ -92,4 +92,10 @@ describe 'Unit' do
     1.megaton_per_kilometer.unit.should.equal [[:kilo, :ton, 1], [:one, :meter, -1]].sort
   end
 
+  it 'should work with floating point values' do
+    #w = (5.2).kilogram
+    w = 5.2 * Unit('kilogram')
+    w.in_pounds.to_int.should.equal 11
+  end
 end
+

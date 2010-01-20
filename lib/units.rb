@@ -218,13 +218,15 @@ class Unit < Numeric
       r = Rational(@numerator, @denominator)
       @numerator = r.numerator
       @denominator = r.denominator
-    elsif Rational === @numerator || Rational === @denominator
-      r = @numerator / @denominator
-      @numerator = r.numerator
-      @denominator = r.denominator
     else
-      @numerator /= @denominator
-      @denominator = 1
+      r = @numerator / @denominator
+      if Rational === r
+        @numerator = r.numerator
+        @denominator = r.denominator
+      else
+        @numerator = r
+        @denominator = 1
+      end
     end
 
     if @numerator == 0
