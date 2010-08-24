@@ -1,8 +1,4 @@
 # encoding: utf-8
-
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
-
-require 'test/spec'
 require 'units'
 
 Unit::System::DEFAULT.load(:scientific)
@@ -72,8 +68,8 @@ describe 'Unit' do
   end
 
   it 'should have a working compatible? method' do
-    7.meter.compatible?('kilogram').should.be false
-    3.parsec.compatible_with?('meter').should.be true
+    7.meter.compatible?('kilogram').should.equal false
+    3.parsec.compatible_with?('meter').should.equal true
   end
 
   it 'should have a pretty string representation' do

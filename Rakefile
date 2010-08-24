@@ -1,10 +1,6 @@
-require 'hoe'
+task :default => :test
 
-$:.unshift 'lib'
-require 'units'
-
-Hoe.spec 'units' do
-  version = Unit::VERSION
-  developer 'Daniel Mendler', 'mail@daniel-mendler.de'
+desc 'Run tests with bacon'
+task :test => FileList['test/*_test.rb'] do |t|
+  sh "bacon -q -Ilib:test #{t.prerequisites.join(' ')}"
 end
-
