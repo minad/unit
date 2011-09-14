@@ -48,8 +48,8 @@ describe 'Unit' do
   end
 
   it 'should provide method sugar' do
-    1.meter.should.equal  Unit('1 meter')
-    1.meter_per_second.should.equal  Unit('1 m/s')
+    1.meter.should.equal Unit('1 meter')
+    1.meter_per_second.should.equal Unit('1 m/s')
     1.meter.in_kilometer.should.equal Unit('1 m').in('km')
     1.unit('°C').should.equal Unit(1, '°C')
   end
@@ -73,7 +73,7 @@ describe 'Unit' do
   end
 
   it 'should have a pretty string representation' do
-    7.joule.normalize.to_s.should.equal '7000 g·m^2/s^2'
+    7.joule.normalize.to_s.should.equal '7000 g·m^2·s^-2'
   end
 
   it 'should parse units' do
@@ -92,6 +92,18 @@ describe 'Unit' do
     #w = (5.2).kilogram
     w = 5.2 * Unit('kilogram')
     w.in_pounds.to_int.should.equal 11
+  end
+
+  it 'should have dimensionless? method' do
+    100.meter.per_km.should.be.dimensionless
+    100.meter.per_km.should.be.unitless
+    42.meter.per_second.should.not.be.unitless
+    100.meter.per_km.should.equal Rational(1, 10).to_unit
+  end
+
+  it 'should be equal to rational if dimensionless' do
+    100.meter.per_km.should.equal Rational(1, 10)
+    100.meter.per_km.approx.should.equal 0.1
   end
 end
 
