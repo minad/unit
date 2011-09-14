@@ -114,36 +114,15 @@ class Unit < Numeric
   end
 
   def inspect
-    "Unit(#{numerator}/#{denominator}, #{unit.inspect})"
+    unit.empty? ? %{Unit("#{number_string}")} : %{Unit("#{number_string} #{unit_string('.')}")}
   end
 
   def to_s
-    s = ''
-    s << @numerator.to_s
-    s << "/#{@denominator}" if @denominator != 1
-    positive = @unit.select {|prefix, name, exp| exp >= 0 }
-    negative = @unit.select {|prefix, name, exp| exp < 0 }
-    s << ' ' << unit_string(positive, '·') if !positive.empty?
-    if !negative.empty?
-      s << ' 1' if positive.empty?
-      s << '/' << unit_string(negative, '·')
-    end
-    s
+    unit.empty? ? number_string : "#{number_string} #{unit_string('·')}"
   end
 
   def to_tex
-    s = '\SI{'
-    s << @numerator.to_s
-    s << "/#{@denominator}" if @denominator != 1
-    positive = @unit.select {|prefix, name, exp| exp >= 0 }
-    negative = @unit.select {|prefix, name, exp| exp < 0 }
-    s << '}{' << unit_string(positive, '.') if !positive.empty?
-    if !negative.empty?
-      s << ' 1' if positive.empty?
-      s << '/' << unit_string(negative, '.')
-    end
-    s << '}'
-    s
+    unit.empty? ? number_string : "\SI{#{number_string}}{#{unit_string('.')}}"
   end
 
   def to_i
@@ -183,16 +162,25 @@ class Unit < Numeric
 
   private
 
-  def unit_string(list, sep)
+  def number_string
+    @numerator.to_s << (@denominator == 1 ? '' : "/#{@denominator}")
+  end
+
+  def unit_string(sep)
+    (unit_list(@unit.select {|prefix, name, exp| exp >= 0 }) +
+     unit_list(@unit.select {|prefix, name, exp| exp < 0 })).join(sep)
+  end
+
+  def unit_list(list)
     units = []
     list.each do |prefix, name, exp|
       unit = ''
       unit << (@system.prefix[prefix] ? @system.prefix[prefix][:symbol] : prefix.to_s) if prefix != :one
       unit << (@system.unit[name] ? @system.unit[name][:symbol] : name.to_s)
-      unit << '^' << exp.abs.to_s if exp.abs != 1
+      unit << '^' << exp.to_s if exp != 1
       units << unit
     end
-    units.sort.join(sep)
+    units.sort
   end
 
   def self.power_unit(unit, pow)
