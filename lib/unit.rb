@@ -381,7 +381,7 @@ class Unit < Numeric
 
     def compute(result, op)
       b = result.pop
-      a = result.pop
+      a = result.pop || raise(SyntaxError, "Unexpected token #{op}")
       result << case op
                 when '*' then a + b
                 when '/' then a + Unit.power_unit(b, -1)
