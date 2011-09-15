@@ -2,11 +2,11 @@
 require 'yaml'
 
 class Unit < Numeric
-  VERSION = '0.2.0'
+  VERSION = '0.2.1'
 
   attr_reader :numerator, :denominator, :unit, :normalized, :system
 
-  def initialize(numerator,  denominator, unit, system)
+  def initialize(numerator, denominator, unit, system)
     @system = system
     @numerator = numerator
     @denominator = denominator
