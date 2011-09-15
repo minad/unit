@@ -138,7 +138,7 @@ class Unit < Numeric
   end
 
   def to_unit(system = nil)
-    system ||= Unit::System::DEFAULT
+    system ||= Unit.default_system
     raise TypeError, 'Different unit system' if @system != system
     self
   end
@@ -398,9 +398,13 @@ class Unit < Numeric
       system.load(:degree)
       system.load(:time)
     end
-
-    DEFAULT = SI
   end
+
+  class<< self
+    attr_accessor :default_system
+  end
+
+  self.default_system = System::SI
 end
 
 def Unit(*args)
@@ -408,7 +412,7 @@ def Unit(*args)
   denominator = Numeric === args.first ? args.shift : 1
 
   system = args.index {|x| Unit::System === x }
-  system = system ? args.delete_at(system) : Unit::System::DEFAULT
+  system = system ? args.delete_at(system) : Unit.default_system
 
   unit = args.index {|x| String === x }
   unit = system.parse_unit(args.delete_at(unit)) if unit
@@ -428,7 +432,7 @@ end
 
 class Numeric
   def to_unit(system = nil)
-    system ||= Unit::System::DEFAULT
+    system ||= Unit.default_system
     Unit.new(self, 1, [], system)
   end
 
@@ -445,14 +449,14 @@ end
 
 class Rational
   def to_unit(system = nil)
-    system ||= Unit::System::DEFAULT
+    system ||= Unit.default_system
     Unit.new(numerator, denominator, [], system)
   end
 end
 
 class String
   def to_unit(system = nil)
-    system ||= Unit::System::DEFAULT
+    system ||= Unit.default_system
     unit = system.parse_unit(self)
     system.validate_unit(unit)
     Unit.new(1, 1, unit, system)
@@ -467,7 +471,7 @@ end
 
 class Array
   def to_unit(system = nil)
-    system ||= Unit::System::DEFAULT
+    system ||= Unit.default_system
     system.validate_unit(self)
     Unit.new(1, 1, self, system)
   end

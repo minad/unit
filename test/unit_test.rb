@@ -1,9 +1,9 @@
 # encoding: utf-8
 require 'unit'
 
-Unit::System::DEFAULT.load(:scientific)
-Unit::System::DEFAULT.load(:imperial)
-Unit::System::DEFAULT.load(:misc)
+Unit.default_system.load(:scientific)
+Unit.default_system.load(:imperial)
+Unit.default_system.load(:misc)
 
 describe 'Unit' do
   it 'should support multiplication' do
