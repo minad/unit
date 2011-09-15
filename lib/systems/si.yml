@@ -91,7 +91,7 @@ units:
     sym: kat
     def: mole / second
 
-prefixes:
+factors:
   # SI prefices
   yotta:
     sym:  Y

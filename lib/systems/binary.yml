@@ -6,7 +6,7 @@ units:
     sym: B
     def: 8 * bit
 
-prefixes:
+factors:
   kibi:
     sym:  Ki
     base: 2

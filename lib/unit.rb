@@ -4,12 +4,11 @@ require 'yaml'
 class Unit < Numeric
   VERSION = '0.2.1'
 
-  attr_reader :numerator, :denominator, :unit, :normalized, :system
+  attr_reader :value, :normalized, :unit, :system
 
-  def initialize(numerator, denominator, unit, system)
+  def initialize(value, unit, system)
     @system = system
-    @numerator = numerator
-    @denominator = denominator
+    @value = value
     @unit = unit.dup
     @normalized = nil
     reduce!
@@ -17,8 +16,7 @@ class Unit < Numeric
 
   def initialize_copy(other)
     @system = other.system
-    @numerator = other.numerator
-    @denominator = other.denominator
+    @value = other.value
     @unit = other.unit.dup
     @normalized = other.normalized
   end
@@ -34,13 +32,9 @@ class Unit < Numeric
       begin
         last_unit = @unit
         @unit = []
-        last_unit.each do |prefix, unit, exp|
-          if prefix != :one
-            if exp >= 0
-              @numerator *= @system.prefix[prefix][:value] ** exp
-            else
-              @denominator *= @system.prefix[prefix][:value] ** -exp
-            end
+        last_unit.each do |factor, unit, exp|
+          if factor != :one
+            @value *= @system.factor[factor][:value] ** exp
           end
           if @system.unit[unit]
             @unit += Unit.power_unit(@system.unit[unit][:def], exp)
@@ -57,24 +51,25 @@ class Unit < Numeric
 
   def *(other)
     a, b = coerce(other)
-    Unit.new(a.numerator * b.numerator, a.denominator * b.denominator, a.unit + b.unit, system)
+    Unit.new(a.value * b.value, a.unit + b.unit, system)
   end
 
   def /(other)
     a, b = coerce(other)
-    Unit.new(a.numerator * b.denominator, a.denominator * b.numerator, a.unit + Unit.power_unit(b.unit, -1), system)
+    Unit.new(Integer === a.value && Integer === b.value ? Rational(a.value, b.value) : a.value / b.value,
+             a.unit + Unit.power_unit(b.unit, -1), system)
   end
 
   def +(other)
     raise TypeError, 'Incompatible units' if !compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    Unit.new(a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator, a.unit, system).in(self)
+    Unit.new(a.value + b.value, a.unit, system).in(self)
   end
 
   def **(exp)
     raise TypeError if Unit === exp
-    Unit.new(numerator ** exp, denominator ** exp, Unit.power_unit(unit, exp), system)
+    Unit.new(value ** exp, Unit.power_unit(unit, exp), system)
   end
 
   def -(other)
@@ -82,13 +77,13 @@ class Unit < Numeric
   end
 
   def -@
-    Unit.new(-numerator, denominator, unit, system)
+    Unit.new(-value, unit, system)
   end
 
   def ==(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    a.numerator == b.numerator && a.denominator == b.denominator && a.unit == b.unit
+    a.value == b.value && a.unit == b.unit
   end
 
   # Number without dimension
@@ -114,23 +109,23 @@ class Unit < Numeric
   end
 
   def inspect
-    unit.empty? ? %{Unit("#{number_string}")} : %{Unit("#{number_string} #{unit_string('.')}")}
+    unit.empty? ? %{Unit("#{value}")} : %{Unit("#{value} #{unit_string('.')}")}
   end
 
   def to_s
-    unit.empty? ? number_string : "#{number_string} #{unit_string('·')}"
+    unit.empty? ? value.to_s : "#{value} #{unit_string('·')}"
   end
 
   def to_tex
-    unit.empty? ? number_string : "\SI{#{number_string}}{#{unit_string('.')}}"
+    unit.empty? ? value.to_s : "\SI{#{value}}{#{unit_string('.')}}"
   end
 
   def to_i
-    (@numerator / @denominator).to_i
+    @value.to_i
   end
 
   def to_f
-    @numerator.to_f / @denominator.to_f
+    @value.to_f
   end
 
   def approx
@@ -162,20 +157,16 @@ class Unit < Numeric
 
   private
 
-  def number_string
-    @numerator.to_s << (@denominator == 1 ? '' : "/#{@denominator}")
-  end
-
   def unit_string(sep)
-    (unit_list(@unit.select {|prefix, name, exp| exp >= 0 }) +
-     unit_list(@unit.select {|prefix, name, exp| exp < 0 })).join(sep)
+    (unit_list(@unit.select {|factor, name, exp| exp >= 0 }) +
+     unit_list(@unit.select {|factor, name, exp| exp < 0 })).join(sep)
   end
 
   def unit_list(list)
     units = []
-    list.each do |prefix, name, exp|
+    list.each do |factor, name, exp|
       unit = ''
-      unit << (@system.prefix[prefix] ? @system.prefix[prefix][:symbol] : prefix.to_s) if prefix != :one
+      unit << (@system.factor[factor] ? @system.factor[factor][:symbol] : factor.to_s) if factor != :one
       unit << (@system.unit[name] ? @system.unit[name][:symbol] : name.to_s)
       unit << '^' << exp.to_s if exp != 1
       units << unit
@@ -184,43 +175,20 @@ class Unit < Numeric
   end
 
   def self.power_unit(unit, pow)
-    unit.map {|prefix, name, exp| [prefix, name, exp * pow] }
+    unit.map {|factor, name, exp| [factor, name, exp * pow] }
   end
 
-  # Reduce units and prefixes
+  # Reduce units and factors
   def reduce!
     # Remove numbers from units
-    numbers = @unit.select {|prefix, unit, exp| Numeric === unit }
+    numbers = @unit.select {|factor, unit, exp| Numeric === unit }
     @unit -= numbers
-    numbers.each do |prefix, number, exp|
-       raise RuntimeError, 'Numeric unit with prefix' if prefix != :one
-       if exp >= 0
-         @numerator *= number ** exp
-       else
-         @denominator *= number ** -exp
-       end
+    numbers.each do |factor, number, exp|
+       raise RuntimeError, 'Numeric unit with factor' if factor != :one
+       @value *= number ** exp
     end
 
-    # Reduce number
-    if Integer === @numerator && Integer === @denominator
-      r = Rational(@numerator, @denominator)
-      @numerator = r.numerator
-      @denominator = r.denominator
-    else
-      r = @numerator / @denominator
-      if Rational === r
-        @numerator = r.numerator
-        @denominator = r.denominator
-      else
-        @numerator = r
-        @denominator = 1
-      end
-    end
-
-    if @numerator == 0
-      @denominator = 1
-      @unit.clear
-    end
+    @unit.clear if @value == 0
 
     # Reduce units
     @unit.sort!
@@ -240,16 +208,16 @@ class Unit < Numeric
       i = current + 1
     end
 
-    # Reduce prefixes
-    @unit.each_with_index do |(prefix1, unit1, exp1), k|
+    # Reduce factors
+    @unit.each_with_index do |(factor1, unit1, exp1), k|
       next if exp1 < 0
-      @unit.each_with_index do |(prefix2, unit2, exp2), j|
+      @unit.each_with_index do |(factor2, unit2, exp2), j|
         if exp2 < 0 && exp2 == -exp1
-          q, r = @system.prefix[prefix1][:value].divmod @system.prefix[prefix2][:value]
-          if r == 0 && new_prefix = @system.prefix_value[q]
+          q, r = @system.factor[factor1][:value].divmod @system.factor[factor2][:value]
+          if r == 0 && new_factor = @system.factor_value[q]
             @unit[k] = @unit[k].dup
             @unit[j] = @unit[j].dup
-            @unit[k][0] = new_prefix
+            @unit[k][0] = new_factor
             @unit[j][0] = :one
           end
         end
@@ -262,37 +230,37 @@ class Unit < Numeric
   public
 
   class System
-    attr_reader :name, :unit, :unit_symbol, :prefix, :prefix_symbol, :prefix_value
+    attr_reader :name, :unit, :unit_symbol, :factor, :factor_symbol, :factor_value
 
-    def initialize(name, &block)
+    def initialize(name)
       @name = name
       @unit = {}
       @unit_symbol = {}
 
-      # one is internal trivial prefix
-      @prefix = {:one => {:symbol => 'one', :value => 1} }
-      @prefix_symbol = {'one' => :one}
-      @prefix_value = {1 => :one}
+      # one is internal trivial factor
+      @factor = {:one => {:symbol => 'one', :value => 1} }
+      @factor_symbol = {'one' => :one}
+      @factor_value = {1 => :one}
 
-      block.call(self) if block
+      yield(self) if block_given?
     end
 
     def load(filename)
       data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{filename}.yml"))
 
-      (data['prefixes'] || {}).each do |name, prefix|
+      (data['factors'] || {}).each do |name, factor|
         name = name.to_sym
-        symbols = [prefix['sym'] || []].flatten
-        base = prefix['base']
-        exp = prefix['exp']
+        symbols = [factor['sym'] || []].flatten
+        base = factor['base']
+        exp = factor['exp']
         value = base ** exp
-        $stderr.puts "Prefix #{name} already defined" if @prefix[name]
-        @prefix[name] = { :symbol => symbols.first, :value => value }
+        $stderr.puts "Prefix #{name} already defined" if @factor[name]
+        @factor[name] = { :symbol => symbols.first, :value => value }
         symbols.each do |sym|
-          $stderr.puts "Prefix symbol #{sym} for #{name} already defined" if @prefix_symbol[name]
-          @prefix_symbol[sym] = name
+          $stderr.puts "Prefix symbol #{sym} for #{name} already defined" if @factor_symbol[name]
+          @factor_symbol[sym] = name
         end
-        @prefix_symbol[name.to_s] = @prefix_value[value] = name
+        @factor_symbol[name.to_s] = @factor_value[value] = name
       end
 
       (data['units'] || {}).each do |name, unit|
@@ -313,11 +281,11 @@ class Unit < Numeric
     end
 
     def validate_unit(units)
-      units.each do |prefix, unit, exp|
-        #raise TypeError, 'Prefix must be symbol' if !(Symbol === prefix)
+      units.each do |factor, unit, exp|
+        #raise TypeError, 'Prefix must be symbol' if !(Symbol === factor)
         #raise TypeError, 'Unit must be symbol' if !(Numeric === unit || Symbol === unit)
         #raise TypeError, 'Exponent must be numeric' if !(Numeric === exp)
-        raise TypeError, "Undefined prefix #{prefix}" if !@prefix[prefix]
+        raise TypeError, "Undefined factor #{factor}" if !@factor[factor]
         raise TypeError, "Undefined unit #{unit}" if !(Numeric === unit || @unit[unit])
       end
     end
@@ -366,10 +334,10 @@ class Unit < Numeric
       if unit_symbol[symbol]
         [[:one, unit_symbol[symbol], 1]]
       else
-        found = prefix_symbol.keys.find do |sym|
+        found = factor_symbol.keys.find do |sym|
           symbol[0..sym.size-1] == sym && unit_symbol[symbol[sym.size..-1]]
         end
-        [[prefix_symbol[found], unit_symbol[symbol[found.size..-1]], 1]] if found
+        [[factor_symbol[found], unit_symbol[symbol[found.size..-1]], 1]] if found
       end
     end
 
@@ -408,8 +376,8 @@ class Unit < Numeric
 end
 
 def Unit(*args)
-  numerator = Numeric === args.first ? args.shift : 1
-  denominator = Numeric === args.first ? args.shift : 1
+  value = Numeric === args.first ? args.shift : 1
+  value = Rational(value, args.shift) if Numeric === args.first
 
   system = args.index {|x| Unit::System === x }
   system = system ? args.delete_at(system) : Unit.default_system
@@ -427,13 +395,13 @@ def Unit(*args)
 
   raise ArgumentError, 'wrong number of arguments' unless args.empty?
 
-  Unit.new(numerator, denominator, unit, system)
+  Unit.new(value, unit, system)
 end
 
 class Numeric
   def to_unit(system = nil)
     system ||= Unit.default_system
-    Unit.new(self, 1, [], system)
+    Unit.new(self, [], system)
   end
 
   def method_missing(name, *args)
@@ -447,19 +415,12 @@ class Numeric
   end
 end
 
-class Rational
-  def to_unit(system = nil)
-    system ||= Unit.default_system
-    Unit.new(numerator, denominator, [], system)
-  end
-end
-
 class String
   def to_unit(system = nil)
     system ||= Unit.default_system
     unit = system.parse_unit(self)
     system.validate_unit(unit)
-    Unit.new(1, 1, unit, system)
+    Unit.new(1, unit, system)
   end
 end
 
@@ -473,7 +434,7 @@ class Array
   def to_unit(system = nil)
     system ||= Unit.default_system
     system.validate_unit(self)
-    Unit.new(1, 1, self, system)
+    Unit.new(1, self, system)
   end
 end
 
