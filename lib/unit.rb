@@ -34,10 +34,10 @@ class Unit < Numeric
         @unit = []
         last_unit.each do |factor, unit, exp|
           @value *= @system.factor[factor][:value] ** exp if factor != :one
-          if @system.unit[unit]
-            @unit += Unit.power_unit(@system.unit[unit][:def], exp)
-          else
+          if Numeric === unit
             @unit << [:one, unit, exp]
+          else
+            @unit += Unit.power_unit(@system.unit[unit][:def], exp)
           end
         end
       end while last_unit != @unit
