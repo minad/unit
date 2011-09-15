@@ -8,34 +8,26 @@ units:
 
 factors:
   kibi:
-    sym:  Ki
-    base: 2
-    exp:  10
+    sym: Ki
+    def: 2^10
   mebi:
-    sym:  Mi
-    base: 2
-    exp:  20
+    sym: Mi
+    def: 2^20
   gibi:
-    sym:  Gi
-    base: 2
-    exp:  30
+    sym: Gi
+    def: 2^30
   tebi:
-    sym:  Ti
-    base: 2
-    exp:  40
+    sym: Ti
+    def: 2^40
   pebi:
-    sym:  Pi
-    base: 2
-    exp:  50
+    sym: Pi
+    def: 2^50
   exbi:
-    sym:  Ei
-    base: 2
-    exp:  60
+    sym: Ei
+    def: 2^60
   zebi:
-    sym:  Zi
-    base: 2
-    exp:  70
+    sym: Zi
+    def: 2^70
   yobi:
-    sym:  Yi
-    base: 2
-    exp:  80
+    sym: Yi
+    def: 2^80

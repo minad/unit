@@ -94,82 +94,62 @@ units:
 factors:
   # SI prefices
   yotta:
-    sym:  Y
-    base: 10
-    exp:  24
+    sym: Y
+    def: 10^24
   zetta:
-    sym:  Z
-    base: 10
-    exp:  21
+    sym: Z
+    def: 10^21
   exa:
-    sym:  E
-    base: 10
-    exp:  18
+    sym: E
+    def: 10^18
   peta:
-    sym:  P
-    base: 10
-    exp:  15
+    sym: P
+    def: 10^15
   tera:
-    sym:  T
-    base: 10
-    exp:  12
+    sym: T
+    def: 10^12
   giga:
-    sym:  G
-    base: 10
-    exp:  9
+    sym: G
+    def: 10^9
   mega:
-    sym:  M
-    base: 10
-    exp:  6
+    sym: M
+    def: 10^6
   kilo:
-    sym:  k
-    base: 10
-    exp:  3
+    sym: k
+    def: 10^3
   hecto:
-    sym:  h
-    base: 10
-    exp:  2
+    sym: h
+    def: 10^2
   deca:
-    sym:  da
-    base: 10
-    exp:  1
+    sym: da
+    def: 10^1
   deci:
-    sym:  d
-    base: 10
-    exp:  -1
+    sym: d
+    def: 10^-1
   centi:
-    sym:  c
-    base: 10
-    exp:  -2
+    sym: c
+    def: 10^-2
   milli:
-    sym:  m
-    base: 10
-    exp:  -3
+    sym: m
+    def: 10^-3
   micro:
-    sym:  µ
-    base: 10
-    exp:  -6
+    sym: µ
+    def: 10^-6
   nano:
-    sym:  n
-    base: 10
-    exp:  -9
+    sym: n
+    def: 10^-9
   pico:
-    sym:  p
-    base: 10
-    exp:  -12
+    sym: p
+    def: 10^-12
   femto:
-    sym:  f
-    base: 10
-    exp:  -15
+    sym: f
+    def: 10^-15
   atto:
-    sym:  a
-    base: 10
-    exp:  -18
+    sym: a
+    def: 10^-18
   zepto:
-    sym:  z
-    base: 10
-    exp:  -21
+    sym: z
+    def: 10^-21
   yokto:
-    sym:  y
-    base: 10
-    exp:  -24
+    sym: y
+    def: 10^-24

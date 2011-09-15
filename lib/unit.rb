@@ -251,13 +251,14 @@ class Unit < Numeric
       (data['factors'] || {}).each do |name, factor|
         name = name.to_sym
         symbols = [factor['sym'] || []].flatten
-        base = factor['base']
-        exp = factor['exp']
+        factor['def'] =~ /^(\d+)\^(-?\d+)$/
+        base = $1.to_i
+        exp = $2.to_i
         value = base ** exp
-        $stderr.puts "Prefix #{name} already defined" if @factor[name]
+        $stderr.puts "Factor #{name} already defined" if @factor[name]
         @factor[name] = { :symbol => symbols.first, :value => value }
         symbols.each do |sym|
-          $stderr.puts "Prefix symbol #{sym} for #{name} already defined" if @factor_symbol[name]
+          $stderr.puts "Factor symbol #{sym} for #{name} already defined" if @factor_symbol[name]
           @factor_symbol[sym] = name
         end
         @factor_symbol[name.to_s] = @factor_value[value] = name
@@ -282,7 +283,7 @@ class Unit < Numeric
 
     def validate_unit(units)
       units.each do |factor, unit, exp|
-        #raise TypeError, 'Prefix must be symbol' if !(Symbol === factor)
+        #raise TypeError, 'Factor must be symbol' if !(Symbol === factor)
         #raise TypeError, 'Unit must be symbol' if !(Numeric === unit || Symbol === unit)
         #raise TypeError, 'Exponent must be numeric' if !(Numeric === exp)
         raise TypeError, "Undefined factor #{factor}" if !@factor[factor]
