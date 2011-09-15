@@ -6,7 +6,7 @@ Units introduces computation with units to ruby.
 Usage
 -----
 
-    require 'units'
+    require 'unit'
     puts 1.meter.in_kilometer
     puts 1.MeV.in_joule
     puts 10.KiB / 1.second

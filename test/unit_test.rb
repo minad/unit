@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'units'
+require 'unit'
 
 Unit::System::DEFAULT.load(:scientific)
 Unit::System::DEFAULT.load(:imperial)
