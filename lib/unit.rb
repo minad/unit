@@ -33,9 +33,7 @@ class Unit < Numeric
         last_unit = @unit
         @unit = []
         last_unit.each do |factor, unit, exp|
-          if factor != :one
-            @value *= @system.factor[factor][:value] ** exp
-          end
+          @value *= @system.factor[factor][:value] ** exp if factor != :one
           if @system.unit[unit]
             @unit += Unit.power_unit(@system.unit[unit][:def], exp)
           else
@@ -166,8 +164,8 @@ class Unit < Numeric
     units = []
     list.each do |factor, name, exp|
       unit = ''
-      unit << (@system.factor[factor] ? @system.factor[factor][:symbol] : factor.to_s) if factor != :one
-      unit << (@system.unit[name] ? @system.unit[name][:symbol] : name.to_s)
+      unit << @system.factor[factor][:symbol] if factor != :one
+      unit << @system.unit[name][:symbol]
       unit << '^' << exp.to_s if exp != 1
       units << unit
     end
