@@ -390,26 +390,28 @@ class Unit < Numeric
 
     public
 
-    DEFAULT = new('SI') do |system|
+    SI = new('SI') do |system|
       system.load(:si)
       system.load(:binary)
       system.load(:degree)
       system.load(:time)
     end
+
+    DEFAULT = SI
   end
 end
 
 def Unit(*args)
   numerator = args.find {|x| Numeric === x }
-  args.delete(numerator)  if numerator
+  args.delete(numerator) if numerator
   numerator ||= 1
 
   denominator = args.find {|x| Numeric === x }
-  args.delete(denominator)  if denominator
+  args.delete(denominator) if denominator
   denominator ||= 1
 
   system = args.find {|x| Unit::System === x } || Unit::System::DEFAULT
-  args.delete(system)  if system
+  args.delete(system) if system
 
   unit = args.find {|x| String === x }
   if unit
