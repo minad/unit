@@ -308,6 +308,8 @@ class Unit < Numeric
       end
 
       @unit.each {|name, unit| validate_unit(unit[:def]) }
+
+      true
     end
 
     def validate_unit(units)
