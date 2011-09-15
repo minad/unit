@@ -402,32 +402,24 @@ class Unit < Numeric
 end
 
 def Unit(*args)
-  numerator = args.find {|x| Numeric === x }
-  args.delete(numerator) if numerator
-  numerator ||= 1
+  numerator = Numeric === args.first ? args.shift : 1
+  denominator = Numeric === args.first ? args.shift : 1
 
-  denominator = args.find {|x| Numeric === x }
-  args.delete(denominator) if denominator
-  denominator ||= 1
+  system = args.index {|x| Unit::System === x }
+  system = system ? args.delete_at(system) : Unit::System::DEFAULT
 
-  system = args.find {|x| Unit::System === x } || Unit::System::DEFAULT
-  args.delete(system) if system
+  unit = args.index {|x| String === x }
+  unit = system.parse_unit(args.delete_at(unit)) if unit
 
-  unit = args.find {|x| String === x }
-  if unit
-    args.delete(unit)
-    unit = system.parse_unit(unit)
-  end
-
-  if !unit
-    unit = args.find {|x| Array === x }
-    args.delete(unit) if unit
+  unless unit
+    unit = args.index {|x| Array === x }
+    unit = args.delete_at(unit) if unit
   end
 
   unit ||= []
   system.validate_unit(unit)
 
-  raise ArgumentError, 'wrong number of arguments' if !args.empty?
+  raise ArgumentError, 'wrong number of arguments' unless args.empty?
 
   Unit.new(numerator, denominator, unit, system)
 end
@@ -452,7 +444,7 @@ end
 class Rational
   def to_unit(system = nil)
     system ||= Unit::System::DEFAULT
-    Unit(numerator, denominator, [], system)
+    Unit.new(numerator, denominator, [], system)
   end
 end
 
@@ -461,7 +453,7 @@ class String
     system ||= Unit::System::DEFAULT
     unit = system.parse_unit(self)
     system.validate_unit(unit)
-    Unit(1, 1, unit, system)
+    Unit.new(1, 1, unit, system)
   end
 end
 
@@ -475,7 +467,7 @@ class Array
   def to_unit(system = nil)
     system ||= Unit::System::DEFAULT
     system.validate_unit(self)
-    Unit(1, 1, self, system)
+    Unit.new(1, 1, self, system)
   end
 end
 
