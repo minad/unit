@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'unit'
+require 'unit/dsl'
 
 Unit.default_system.load(:scientific)
 Unit.default_system.load(:imperial)
