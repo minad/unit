@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require File.dirname(__FILE__) + '/lib/unit'
+require File.dirname(__FILE__) + '/lib/unit/version'
 
 Gem::Specification.new do |s|
   s.name = %q{unit}
