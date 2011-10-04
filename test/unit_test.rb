@@ -95,10 +95,11 @@ describe 'Unit' do
   end
 
   it 'should have dimensionless? method' do
+    100.meter_per_km.should.be.dimensionless
     100.meter.per_km.should.be.dimensionless
     100.meter.per_km.should.be.unitless
     42.meter.per_second.should.not.be.unitless
-    100.meter.per_km.should.equal Rational(1, 10).to_unit
+    100.meter.per_km.should.equal Unit(Rational(1, 10))
   end
 
   it 'should be equal to rational if dimensionless' do

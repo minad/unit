@@ -102,8 +102,8 @@ class Unit < Numeric
 
   # Convert to other unit
   def in(unit)
-    unit = unit.to_unit(system)
-    (self / unit).normalize * unit
+    a, b = coerce(unit)
+    (a / b).normalize * b
   end
 
   def inspect
@@ -130,27 +130,28 @@ class Unit < Numeric
     to_f.unit(unit)
   end
 
-  def to_unit(system = nil)
-    system ||= Unit.default_system
-    raise TypeError, 'Different unit system' if @system != system
-    self
-  end
-
   def coerce(val)
-    raise TypeError, 'No unit support' if !val.respond_to? :to_unit
-    [self, val.to_unit(system)]
+    [self, Unit.to_unit(val, system)]
   end
 
-  def method_missing(name)
-    if name.to_s[0..2] == 'in_'
-      self.in(Unit.method_name_to_unit(name))
+  def self.to_unit(object, system = nil)
+    system ||= Unit.default_system
+    case object
+    when Unit
+      raise TypeError, 'Different unit system' if object.system != system
+      object
+    when Array
+      system.validate_unit(object)
+      Unit.new(1, object, system)
+    when String, Symbol
+      unit = system.parse_unit(object.to_s)
+      system.validate_unit(unit)
+      Unit.new(1, unit, system)
+    when Numeric
+      Unit.new(object, [], system)
     else
-      super
+      raise TypeError, "#{object.class} has no unit support"
     end
-  end
-
-  def self.method_name_to_unit(name)
-    name.to_s.sub(/^in_/, '').sub(/^per_/, '1/').gsub('_per_', '/').gsub('_', ' ')
   end
 
   private
@@ -398,42 +399,26 @@ def Unit(*args)
 end
 
 class Numeric
-  def to_unit(system = nil)
-    system ||= Unit.default_system
-    Unit.new(self, [], system)
-  end
-
-  def method_missing(name, *args)
-    Unit.method_name_to_unit(name).to_unit(*args) * self
-  rescue TypeError => ex
-    super
-  end
-
   def unit(unit, system = nil)
-    unit.to_unit(system) * self
+    Unit.to_unit(unit, system) * self
+  end
+
+  def method_missing(name, system = nil)
+    Unit.to_unit(Unit.method_name_to_unit(name), system) * self
   end
 end
 
-class String
-  def to_unit(system = nil)
-    system ||= Unit.default_system
-    unit = system.parse_unit(self)
-    system.validate_unit(unit)
-    Unit.new(1, unit, system)
+class Unit
+  def self.method_name_to_unit(name)
+    name.to_s.sub(/^per_/, '1/').gsub('_per_', '/').gsub('_', ' ')
   end
-end
 
-class Symbol
-  def to_unit(system = nil)
-    to_s.to_unit(system)
-  end
-end
-
-class Array
-  def to_unit(system = nil)
-    system ||= Unit.default_system
-    system.validate_unit(self)
-    Unit.new(1, self, system)
+  def method_missing(name)
+    if name.to_s =~ /^in_/
+      self.in(Unit.method_name_to_unit($'))
+    else
+      Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+    end
   end
 end
 
