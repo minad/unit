@@ -1,0 +1,23 @@
+class Numeric
+  def unit(unit, system = nil)
+    Unit.to_unit(unit, system) * self
+  end
+
+  def method_missing(name, system = nil)
+    Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+  end
+end
+
+class Unit < Numeric
+  def self.method_name_to_unit(name)
+    name.to_s.sub(/^per_/, '1/').gsub('_per_', '/').gsub('_', ' ')
+  end
+
+  def method_missing(name)
+    if name.to_s =~ /^in_/
+      self.in(Unit.method_name_to_unit($'))
+    else
+      Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+    end
+  end
+end

@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 require 'unit'
 
 Unit.default_system.load(:scientific)
