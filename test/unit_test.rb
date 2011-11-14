@@ -128,5 +128,9 @@ describe 'Unit' do
       Unit(1, "second") > Unit(1, "meter")
     }.should.raise(ArgumentError)
   end
+
+  it "should keep units when the value is zero" do
+    Unit(0, "m").unit.should == [[:one, :meter, 1]]
+  end
 end
 

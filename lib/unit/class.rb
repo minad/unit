@@ -99,7 +99,7 @@ class Unit < Numeric
   def compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    (a.unit == b.unit) || (a == 0 || b == 0)
+    (a.unit == b.unit)
   end
 
   alias compatible_with? compatible?
@@ -190,8 +190,6 @@ class Unit < Numeric
        raise RuntimeError, 'Numeric unit with factor' if factor != :one
        @value *= number ** exp
     end
-
-    @unit.clear if @value == 0
 
     # Reduce units
     @unit.sort!
