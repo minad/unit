@@ -27,12 +27,20 @@ describe 'Unit' do
     (Unit(1, 'm') - Unit(1, 'cm')).should.equal Unit(99, 100, 'm')
   end
 
+  it "should support adding through zero" do
+    (Unit(0, "m") + Unit(1, "m")).should.equal Unit(1, "m")
+    (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should.equal Unit(1, "m")
+  end
+
   it 'should check unit compatiblity' do
     should.raise TypeError do
       (Unit(42, 'm') + Unit(1, 's'))
     end
     should.raise TypeError do
       (Unit(42, 'g') + Unit(1, 'm'))
+    end
+    should.raise TypeError do
+      (Unit(0, 'g') + Unit(1, 'm'))
     end
   end
 
