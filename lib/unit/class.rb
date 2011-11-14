@@ -99,7 +99,8 @@ class Unit < Numeric
   # Convert to other unit
   def in(unit)
     a, b = coerce(unit)
-    (a / b).normalize * b
+    conversion = Unit.new(1, b.unit, system)
+    (a / conversion).normalize * conversion
   end
 
   def inspect
