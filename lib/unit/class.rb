@@ -55,7 +55,7 @@ class Unit < Numeric
   end
 
   def +(other)
-    raise TypeError, 'Incompatible units' if !compatible?(other)
+    raise TypeError, "Incompatible units: #{self.inspect} and #{other.inspect}" if !compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
     Unit.new(a.value + b.value, a.unit, system).in(self)
