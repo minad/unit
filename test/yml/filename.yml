@@ -1,0 +1,4 @@
+units:
+  dozen_meter:
+    sym: dzm
+    def: 12 m
