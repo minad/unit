@@ -108,5 +108,10 @@ describe 'Unit' do
     100.meter.per_km.should.equal Rational(1, 10)
     100.meter.per_km.approx.should.equal 0.1
   end
+
+  it "should support adding through zero" do
+    (Unit(0, "m") + Unit(1, "m")).should == Unit(1, "m")
+    (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should == Unit(1, "m")
+  end
 end
 
