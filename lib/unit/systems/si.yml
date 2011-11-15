@@ -44,7 +44,7 @@ units:
     def: newton * meter
   watt:
     sym: W
-    def: joule * second
+    def: joule / second
   coloumb:
     sym: C
     def: ampere * second
