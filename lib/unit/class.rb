@@ -146,7 +146,7 @@ class Unit < Numeric
   end
 
   def approx
-    to_f.unit(unit)
+    Unit.new(self.to_f, unit, system)
   end
 
   def coerce(val)

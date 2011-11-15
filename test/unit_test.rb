@@ -160,5 +160,9 @@ describe 'Unit' do
     Unit(1, "m").abs.should == Unit(1, "m")
     Unit(-1, "m").abs.should == Unit(1, "m")
   end
+
+  it "should produce an approximation" do
+    Unit(Rational(1,3), "m").approx.should == Unit(1.0/3.0, "m")
+  end
 end
 
