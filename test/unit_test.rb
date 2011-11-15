@@ -140,5 +140,10 @@ describe 'Unit' do
   it "should keep units when the value is zero" do
     Unit(0, "m").unit.should.equal [[:one, :meter, 1]]
   end
+
+  it "should support absolute value" do
+    Unit(1, "m").abs.should == Unit(1, "m")
+    Unit(-1, "m").abs.should == Unit(1, "m")
+  end
 end
 
