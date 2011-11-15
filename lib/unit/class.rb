@@ -117,6 +117,14 @@ class Unit < Numeric
     (a / conversion).normalize * conversion
   end
 
+  def in!(unit_string)
+    new_unit = self.in(unit_string)
+    unless new_unit.unit == Unit(1, unit_string).unit
+      raise TypeError, "Unexpected unit #{new_unit.inspect}, expected to be in #{unit_string}"
+    end
+    new_unit
+  end
+
   def inspect
     unit.empty? ? %{Unit("#{value}")} : %{Unit("#{value} #{unit_string('.')}")}
   end
