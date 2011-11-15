@@ -55,7 +55,7 @@ class Unit < Numeric
   end
 
   def +(other)
-    raise TypeError, "Incompatible units: #{self.inspect} and #{other.inspect}" if !compatible?(other)
+    raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
     Unit.new(a.value + b.value, a.unit, system).in(self)
@@ -117,12 +117,11 @@ class Unit < Numeric
     (a / conversion).normalize * conversion
   end
 
-  def in!(unit_string)
-    new_unit = self.in(unit_string)
-    unless new_unit.unit == Unit(1, unit_string).unit
-      raise TypeError, "Unexpected unit #{new_unit.inspect}, expected to be in #{unit_string}"
-    end
-    new_unit
+  def in!(unit)
+    a, b = coerce(unit)
+    result = self.in(b)
+    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.inspect}" unless result.unit == b.unit
+    result
   end
 
   def inspect

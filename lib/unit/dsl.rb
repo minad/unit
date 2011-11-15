@@ -14,8 +14,9 @@ class Unit < Numeric
   end
 
   def method_missing(name)
-    if name.to_s =~ /^in_/
-      self.in(Unit.method_name_to_unit($'))
+    if name.to_s =~ /^in_(.*?)(!?)$/
+      unit = Unit.method_name_to_unit($1)
+      $2.empty? ? self.in(unit) : self.in!(unit)
     else
       Unit.to_unit(Unit.method_name_to_unit(name), system) * self
     end
