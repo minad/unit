@@ -145,5 +145,10 @@ describe 'Unit' do
     Unit(1, "m").abs.should == Unit(1, "m")
     Unit(-1, "m").abs.should == Unit(1, "m")
   end
+
+  it "should have #zero?" do
+    Unit(0, "m").zero?.should == true
+    Unit(1, "m").zero?.should == false
+  end
 end
 

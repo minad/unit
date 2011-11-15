@@ -78,6 +78,10 @@ class Unit < Numeric
     Unit.new(value.abs, unit, system)
   end
 
+  def zero?
+    value.zero?
+  end
+
   def ==(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
