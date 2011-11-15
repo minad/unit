@@ -80,6 +80,14 @@ class Unit < Numeric
     a.value == b.value && a.unit == b.unit
   end
 
+  def <=>(other)
+    a, b = coerce(other)
+    a, b = a.normalize, b.normalize
+    if compatible?(other)
+      a.value <=> b.value
+    end
+  end
+
   # Number without dimension
   def dimensionless?
     normalize.unit.empty?

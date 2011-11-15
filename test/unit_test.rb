@@ -108,5 +108,25 @@ describe 'Unit' do
     100.meter.per_km.should.equal Rational(1, 10)
     100.meter.per_km.approx.should.equal 0.1
   end
+
+  it 'should be comparable' do
+    Unit(1,'m').should < Unit(2,'m')
+    Unit(1,'m').should <= Unit(2,'m')
+
+    Unit(1,'m').should <= Unit(1,'m')
+    Unit(1,'m').should >= Unit(1,'m')
+
+    Unit(1,'m').should > Unit(0,'m')
+    Unit(1,'m').should >= Unit(0,'m')
+
+    Unit(100, "m").should < Unit(1, "km")
+    Unit(100, "m").should > Unit(0.0001, "km")
+  end
+
+  it "should fail comparison on differing units" do
+    lambda {
+      Unit(1, "second") > Unit(1, "meter")
+    }.should.raise(ArgumentError)
+  end
 end
 
