@@ -111,16 +111,16 @@ class Unit < Numeric
   alias compatible_with? compatible?
 
   # Convert to other unit
-  def in(unit)
-    a, b = coerce(unit)
+  def in(unit_name)
+    a, b = coerce(unit_name)
     conversion = Unit.new(1, b.unit, system)
     (a / conversion).normalize * conversion
   end
 
-  def in!(unit_string)
-    new_unit = self.in(unit_string)
-    unless new_unit.unit == Unit(1, unit_string).unit
-      raise TypeError, "Unexpected unit #{new_unit.inspect}, expected to be in #{unit_string}"
+  def in!(unit_name)
+    new_unit = self.in(unit_name)
+    unless new_unit.unit == Unit(1, unit_name).unit
+      raise TypeError, "Unexpected unit #{new_unit.inspect}, expected to be in #{unit_name}"
     end
     new_unit
   end
