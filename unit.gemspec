@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version = Unit::VERSION
 
   s.authors = ["Daniel Mendler"]
-  s.date = %q{2009-05-17}
+  s.date  = Date.today.to_s
   s.email = ["mail@daniel-mendler.de"]
 
   s.files         = `git ls-files`.split("\n")
