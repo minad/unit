@@ -120,7 +120,7 @@ class Unit < Numeric
   def in!(unit)
     a, b = coerce(unit)
     result = self.in(b)
-    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.inspect}" unless result.unit == b.unit
+    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.unit_string}" unless result.unit == b.unit
     result
   end
 

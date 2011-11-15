@@ -19,10 +19,10 @@ describe "Errors" do
       unit = Unit(1000, "m / s")
       lambda do
         unit.in!("seconds")
-      end.should.raise(TypeError).message.should.equal(%{Unexpected Unit("1000/1 m.s^-1"), expected to be in Unit("1 s")})
+      end.should.raise(TypeError).message.should.equal(%{Unexpected Unit("1000/1 m.s^-1"), expected to be in s})
       lambda do
         unit.in_seconds!
-      end.should.raise(TypeError).message.should.equal(%{Unexpected Unit("1000/1 m.s^-1"), expected to be in Unit("1 s")})
+      end.should.raise(TypeError).message.should.equal(%{Unexpected Unit("1000/1 m.s^-1"), expected to be in s})
     end
   end
 end
