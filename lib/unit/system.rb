@@ -18,8 +18,19 @@ class Unit < Numeric
       yield(self) if block_given?
     end
 
-    def load(filename)
-      data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{filename}.yml"))
+    def load(input)
+      case input
+      when IO
+        data = YAML.load(input.read)
+      when String
+        if File.exist?(input)
+          data = YAML.load_file(input)
+        else
+          data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))
+        end
+      when Symbol
+        data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))
+      end
 
       (data['factors'] || {}).each do |name, factor|
         name = name.to_sym
