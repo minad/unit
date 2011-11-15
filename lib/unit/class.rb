@@ -129,7 +129,7 @@ class Unit < Numeric
   end
 
   def to_s
-    unit.empty? ? value.to_s : "#{value} #{unit_string('·')}"
+    unit.empty? ? value.to_s : "#{value} #{unit_string}"
   end
 
   def to_tex
@@ -172,12 +172,12 @@ class Unit < Numeric
     end
   end
 
-  private
-
-  def unit_string(sep)
+  def unit_string(sep = '·')
     (unit_list(@unit.select {|factor, name, exp| exp >= 0 }) +
      unit_list(@unit.select {|factor, name, exp| exp < 0 })).join(sep)
   end
+
+  private
 
   def unit_list(list)
     units = []
