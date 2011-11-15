@@ -111,10 +111,18 @@ class Unit < Numeric
   alias compatible_with? compatible?
 
   # Convert to other unit
-  def in(unit)
-    a, b = coerce(unit)
+  def in(unit_name)
+    a, b = coerce(unit_name)
     conversion = Unit.new(1, b.unit, system)
     (a / conversion).normalize * conversion
+  end
+
+  def in!(unit_name)
+    new_unit = self.in(unit_name)
+    unless new_unit.unit == Unit(1, unit_name).unit
+      raise TypeError, "Unexpected unit #{new_unit.inspect}, expected to be in #{unit_name}"
+    end
+    new_unit
   end
 
   def inspect
@@ -122,7 +130,7 @@ class Unit < Numeric
   end
 
   def to_s
-    unit.empty? ? value.to_s : "#{value} #{unit_string('·')}"
+    unit.empty? ? value.to_s : "#{value} #{unit_string}"
   end
 
   def to_tex
@@ -138,7 +146,7 @@ class Unit < Numeric
   end
 
   def approx
-    to_f.unit(unit)
+    Unit.new(self.to_f, unit, system)
   end
 
   def coerce(val)
@@ -165,12 +173,12 @@ class Unit < Numeric
     end
   end
 
-  private
-
-  def unit_string(sep)
+  def unit_string(sep = '·')
     (unit_list(@unit.select {|factor, name, exp| exp >= 0 }) +
      unit_list(@unit.select {|factor, name, exp| exp < 0 })).join(sep)
   end
+
+  private
 
   def unit_list(list)
     units = []

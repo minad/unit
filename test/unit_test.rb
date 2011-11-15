@@ -150,5 +150,19 @@ describe 'Unit' do
     Unit(0, "m").zero?.should == true
     Unit(1, "m").zero?.should == false
   end
+
+  it "should support adding through zero" do
+    (Unit(0, "m") + Unit(1, "m")).should == Unit(1, "m")
+    (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should == Unit(1, "m")
+  end
+
+  it "should support absolute value" do
+    Unit(1, "m").abs.should == Unit(1, "m")
+    Unit(-1, "m").abs.should == Unit(1, "m")
+  end
+
+  it "should produce an approximation" do
+    Unit(Rational(1,3), "m").approx.should == Unit(1.0/3.0, "m")
+  end
 end
 
