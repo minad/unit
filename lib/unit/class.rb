@@ -83,9 +83,7 @@ class Unit < Numeric
   def <=>(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    if compatible?(other)
-      a.value <=> b.value
-    end
+    a.value <=> b.value if a.unit == b.unit
   end
 
   # Number without dimension
@@ -99,7 +97,7 @@ class Unit < Numeric
   def compatible?(other)
     a, b = coerce(other)
     a, b = a.normalize, b.normalize
-    (a.unit == b.unit)
+    a.unit == b.unit
   end
 
   alias compatible_with? compatible?
