@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'bacon'
 require 'unit'
 require 'unit/dsl'
 
