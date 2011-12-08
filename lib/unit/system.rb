@@ -20,6 +20,9 @@ class Unit < Numeric
 
     def load(input)
       case input
+      when Hash
+        raise "Invalid hash format to load system" unless (input["units"] && input["units"].first.last['def']) || input.first.last['def']
+        data = input['units'] || input
       when IO
         data = YAML.load(input.read)
       when String
