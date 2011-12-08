@@ -19,6 +19,16 @@ describe "Unit" do
         Unit.default_system.load(test_file)
         Unit(2, "dzm").should.equal Unit(24, "m")
       end
+
+      it "should load a hash" do
+        Unit.default_system.load({
+          'dozen_meter' => {
+            'sym' => 'dzm',
+            'def' => '12 m'
+          }
+        })
+        Unit(2, "dzm").should.equal Unit(24, "m")
+      end
     end
   end
 end
