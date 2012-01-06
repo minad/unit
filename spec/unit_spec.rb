@@ -84,33 +84,54 @@ describe 'Unit' do
     lambda {Unit(42, 'g') ** Unit(1, 'm')}.should raise_error(TypeError)
   end
 
-  it 'should provide method sugar' do
-    1.meter.should == Unit('1 meter')
-    1.meter_per_second.should == Unit('1 m/s')
-    1.meter.in_kilometer.should == Unit('1 m').in('km')
-    1.unit('°C').should == Unit(1, '°C')
+  describe "#normalize" do
+    it "should return a normalized unit" do
+      unit = Unit(1, 'joule')
+      normalized_unit =  Unit(1000, 'gram meter^2 / second^2')
+
+      unit.normalize.should eql normalized_unit
+    end
+
+    it "should not modify the receiver" do
+      unit = Unit(1, 'joule')
+      normalized_unit =  Unit(1000, 'gram meter^2 / second^2')
+
+      unit.normalize
+      unit.should_not eql normalized_unit
+    end
   end
 
-  it 'should have a normalizer' do
-    1.joule.normalize.should == Unit(1000, 'gram meter^2 / second^2')
-    unit = 1.joule.normalize!
-    unit.should == unit.normalized
+  describe "#normalize!" do
+    it "should return a normalized unit" do
+      unit = Unit(1, 'joule')
+      normalized_unit =  Unit(1000, 'gram meter^2 / second^2')
+
+      unit.normalize!.should eql normalized_unit
+    end
+
+    it "should modify the receiver" do
+      unit = Unit(1, 'joule')
+      normalized_unit =  Unit(1000, 'gram meter^2 / second^2')
+
+      unit.normalize!
+      unit.should eql normalized_unit
+    end
   end
 
   it 'should convert units' do
-    1.MeV.in_joule.should == Unit(1.602176487e-13, 'joule')
-    1.kilometer.in_meter.should == Unit(1000, 'meter')
-    1.liter.in('meter^3').should == Unit(1, 1000, 'meter^3')
-    1.kilometer_per_hour.in_meter_per_second.should == Unit(5, 18, 'meter/second')
+    Unit(1, "MeV").in("joule").should == Unit(1.602176487e-13, 'joule')
+    Unit(1, "kilometer").in("meter").should == Unit(1000, 'meter')
+    Unit(1, "liter").in('meter^3').should == Unit(1, 1000, 'meter^3')
+    Unit(1, "kilometer/hour").in("meter/second").should == Unit(5, 18, 'meter/second')
   end
 
   it 'should have a working compatible? method' do
-    7.meter.compatible?('kilogram').should == false
-    3.parsec.compatible_with?('meter').should == true
+    Unit(7, "meter").compatible?('kilogram').should == false
+    Unit(3, "parsec").compatible_with?('meter').should == true
   end
 
   it 'should have a pretty string representation' do
-    7.joule.normalize.to_s.should == '7000 g·m^2·s^-2'
+    Unit(7, "joule").normalize.to_s.should == '7000 g·m^2·s^-2'
   end
 
   it 'should parse units' do
@@ -121,38 +142,35 @@ describe 'Unit' do
   end
 
   it 'should reduce units' do
-    1.joule_per_kilogram.normalize.unit.should == [[:one, :meter, 2], [:one, :second, -2]].sort
-    1.megaton_per_kilometer.unit.should == [[:kilo, :ton, 1], [:one, :meter, -1]].sort
+    Unit(1, "joule/kilogram").normalize.unit.should == [[:one, :meter, 2], [:one, :second, -2]].sort
+    Unit(1, "megaton/kilometer").unit.should == [[:kilo, :ton, 1], [:one, :meter, -1]].reverse
   end
 
   it 'should work with floating point values' do
-    #w = (5.2).kilogram
     w = 5.2 * Unit('kilogram')
-    w.in_pounds.to_int.should == 11
+    w.in("pounds").to_int.should == 11
   end
 
   it 'should have dimensionless? method' do
-    100.meter_per_km.should be_dimensionless
-    100.meter.per_km.should be_dimensionless
-    100.meter.per_km.should be_unitless
-    42.meter.per_second.should_not be_unitless
-    100.meter.per_km.should == Unit(Rational(1, 10))
+    Unit(100, "m/km").should be_dimensionless
+    Unit(42, "meter/second").should_not be_unitless
+    Unit(100, "meter/km").should == Unit(Rational(1, 10))
   end
 
   it 'should be equal to rational if dimensionless' do
-    100.meter.per_km.should == Rational(1, 10)
-    100.meter.per_km.approx.should == 0.1
+    Unit(100, "meter/km").should == Rational(1, 10)
+    Unit(100, "meter/km").approx.should == 0.1
   end
 
   it 'should be comparable' do
-    Unit(1,'m').should < Unit(2,'m')
-    Unit(1,'m').should <= Unit(2,'m')
+    Unit(1, 'm').should < Unit(2, 'm')
+    Unit(1, 'm').should <= Unit(2, 'm')
 
-    Unit(1,'m').should <= Unit(1,'m')
-    Unit(1,'m').should >= Unit(1,'m')
+    Unit(1, 'm').should <= Unit(1, 'm')
+    Unit(1, 'm').should >= Unit(1, 'm')
 
-    Unit(1,'m').should > Unit(0,'m')
-    Unit(1,'m').should >= Unit(0,'m')
+    Unit(1, 'm').should > Unit(0, 'm')
+    Unit(1, 'm').should >= Unit(0, 'm')
 
     Unit(100, "m").should < Unit(1, "km")
     Unit(100, "m").should > Unit(0.0001, "km")
@@ -181,5 +199,14 @@ describe 'Unit' do
   it "should produce an approximation" do
     Unit(Rational(1,3), "m").approx.should == Unit(1.0/3.0, "m")
   end
+
 end
 
+describe "Unit DSL", :dsl => true do
+  it 'should provide method sugar' do
+    1.meter.should == Unit('1 meter')
+    1.meter_per_second.should == Unit('1 m/s')
+    1.meter.in_kilometer.should == Unit('1 m').in('km')
+    1.unit('°C').should == Unit(1, '°C')
+  end
+end
