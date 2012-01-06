@@ -1,6 +1,5 @@
-task :default => :test
 
-desc 'Run tests with bacon'
-task :test => FileList['test/*_test.rb'] do |t|
-  sh "bacon -q -Ilib:test #{t.prerequisites.join(' ')}"
-end
+require 'rspec/core/rake_task'
+task :default => :spec
+desc "Run specs"
+RSpec::Core::RakeTask.new
