@@ -44,19 +44,19 @@ class Unit < Numeric
   end
 
   def *(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     Unit.new(a.value * b.value, a.unit + b.unit, system)
   end
 
   def /(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     Unit.new(Integer === a.value && Integer === b.value ? Rational(a.value, b.value) : a.value / b.value,
              a.unit + Unit.power_unit(b.unit, -1), system)
   end
 
   def +(other)
     raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     a, b = a.normalize, b.normalize
     Unit.new(a.value + b.value, a.unit, system).in(self)
   end
@@ -83,13 +83,13 @@ class Unit < Numeric
   end
 
   def ==(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     a, b = a.normalize, b.normalize
     a.value == b.value && a.unit == b.unit
   end
 
   def <=>(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     a, b = a.normalize, b.normalize
     a.value <=> b.value if a.unit == b.unit
   end
@@ -103,7 +103,7 @@ class Unit < Numeric
 
   # Compatible units can be added
   def compatible?(other)
-    a, b = coerce(other)
+    b, a = coerce(other)
     a, b = a.normalize, b.normalize
     a.unit == b.unit
   end
@@ -112,13 +112,13 @@ class Unit < Numeric
 
   # Convert to other unit
   def in(unit)
-    a, b = coerce(unit)
+    b, a = coerce(unit)
     conversion = Unit.new(1, b.unit, system)
     (a / conversion).normalize * conversion
   end
 
   def in!(unit)
-    a, b = coerce(unit)
+    b, a = coerce(unit)
     result = self.in(b)
     raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.unit_string}" unless result.unit == b.unit
     result
@@ -148,8 +148,8 @@ class Unit < Numeric
     Unit.new(self.to_f, unit, system)
   end
 
-  def coerce(val)
-    [self, Unit.to_unit(val, system)]
+  def coerce(other)
+    [Unit.to_unit(other, system), self]
   end
 
   def self.to_unit(object, system = nil)
