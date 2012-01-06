@@ -19,5 +19,5 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/minad/unit}
 
   s.add_development_dependency('rake', ['>= 0.8.7'])
-  s.add_development_dependency('bacon')
+  s.add_development_dependency('rspec')
 end

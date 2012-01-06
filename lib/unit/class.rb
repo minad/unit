@@ -44,21 +44,48 @@ class Unit < Numeric
   end
 
   def *(other)
-    a, b = coerce(other)
-    Unit.new(a.value * b.value, a.unit + b.unit, system)
+    case other
+    when Unit
+      Unit.new(other.value * self.value, other.unit + self.unit, system)
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self * other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def /(other)
-    a, b = coerce(other)
-    Unit.new(Integer === a.value && Integer === b.value ? Rational(a.value, b.value) : a.value / b.value,
-             a.unit + Unit.power_unit(b.unit, -1), system)
+    case other
+    when Unit
+      new_value = if Integer === self.value && Integer === other.value
+                    Rational(self.value, other.value)
+                  else
+                    self.value / other.value
+                  end
+      new_unit = self.unit + Unit.power_unit(other.unit, -1)
+      Unit.new(new_value, new_unit, system)
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self / other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def +(other)
-    raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
-    a, b = coerce(other)
-    a, b = a.normalize, b.normalize
-    Unit.new(a.value + b.value, a.unit, system).in(self)
+    case other
+    when Unit
+      raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
+      a = self.normalize
+      b = other.normalize
+      Unit.new(a.value + b.value, b.unit, system).in(self)
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self + other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def **(exp)
@@ -67,7 +94,18 @@ class Unit < Numeric
   end
 
   def -(other)
-    self + (-other)
+    case other
+    when Unit
+      raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
+      a = self.normalize
+      b = other.normalize
+      Unit.new(a.value - b.value, b.unit, system).in(self)
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self - other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def -@
@@ -83,15 +121,43 @@ class Unit < Numeric
   end
 
   def ==(other)
-    a, b = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.value == b.value && a.unit == b.unit
+    case other
+    when Unit
+      a = self.normalize
+      b = other.normalize
+      a.value == b.value && a.unit == b.unit
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self == other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
+  end
+
+  def eql?(other)
+    case other
+    when Unit
+      self.unit == other.unit && self.value.eql?(other.value)
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self.eql? other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def <=>(other)
-    a, b = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.value <=> b.value if a.unit == b.unit
+    case other
+    when Unit
+      a = self.normalize
+      b = other.normalize
+      a.value <=> b.value if a.unit == b.unit
+    when Numeric
+      other_unit = Unit.to_unit(other, system)
+      self <=> other_unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   # Number without dimension
@@ -103,24 +169,24 @@ class Unit < Numeric
 
   # Compatible units can be added
   def compatible?(other)
-    a, b = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.unit == b.unit
+    self.normalize.unit == Unit.to_unit(other, system).normalize.unit
   end
 
   alias compatible_with? compatible?
 
   # Convert to other unit
   def in(unit)
-    a, b = coerce(unit)
-    conversion = Unit.new(1, b.unit, system)
-    (a / conversion).normalize * conversion
+    other_unit = Unit.to_unit(unit, system).unit
+    conversion = Unit.new(1, other_unit, system)
+    (self / conversion).normalize * conversion
   end
 
   def in!(unit)
-    a, b = coerce(unit)
-    result = self.in(b)
-    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.unit_string}" unless result.unit == b.unit
+    other_unit = Unit.to_unit(unit, system)
+    result = self.in(unit)
+    unless result.unit == other_unit.unit
+      raise TypeError, "Unexpected #{result.inspect}, expected to be in #{other_unit.unit_string}"
+    end
     result
   end
 
@@ -148,8 +214,13 @@ class Unit < Numeric
     Unit.new(self.to_f, unit, system)
   end
 
-  def coerce(val)
-    [self, Unit.to_unit(val, system)]
+  def coerce(other)
+    case other
+    when Numeric
+      [Unit.to_unit(other, system), self]
+    else
+      raise ArgumentError, "Cannot coerce #{other.class} into #{self.class}"
+    end
   end
 
   def self.to_unit(object, system = nil)
@@ -240,6 +311,23 @@ class Unit < Numeric
     end
 
     self
+  end
+
+  # Given another object and an operator, use the other object's #coerce method
+  # to perform the operation.
+  #
+  # Based on Matrix#apply_through_coercion
+  def apply_through_coercion(obj, oper)
+    coercion = obj.coerce(self)
+    raise TypeError unless coercion.is_a?(Array) && coercion.length == 2
+    first, last = coercion
+    if first.respond_to?(:public_send)
+      first.public_send(oper, last)
+    else
+      first.send(oper, last)
+    end
+  rescue
+    raise TypeError, "#{obj.inspect} can't be coerced into #{self.class}"
   end
 
   class<< self
