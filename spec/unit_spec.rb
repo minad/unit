@@ -18,10 +18,12 @@ describe 'Unit' do
     (Unit(2, 'm') / 3).should == Unit(2, 3, 'm')
     (Unit(2, 'm') / Rational(3, 4)).should == Unit(8, 3, 'm')
     (Unit(2, 'm') / 0.5).should == Unit(4.0, 'm')
+    (Unit(2, 'm') / '2 kg').should == Unit(1.0, 'm/kg')
   end
 
   it 'should support addition' do
     (Unit(42, 'm') + Unit(1, 'km')).should == Unit(1042, 'm')
+    (Unit(2, 'm') + '1 m').should == Unit(3.0, 'm')
   end
 
   it 'should support subtraction' do
