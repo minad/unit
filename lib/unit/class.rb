@@ -2,6 +2,8 @@
 class Unit < Numeric
   attr_reader :value, :normalized, :unit, :system
 
+  class NoUnitSupport < TypeError; end
+
   def initialize(value, unit, system)
     @system = system
     @value = value
@@ -46,12 +48,16 @@ class Unit < Numeric
   def *(other)
     b, a = coerce(other)
     Unit.new(a.value * b.value, a.unit + b.unit, system)
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
   end
 
   def /(other)
     b, a = coerce(other)
     Unit.new(Integer === a.value && Integer === b.value ? Rational(a.value, b.value) : a.value / b.value,
              a.unit + Unit.power_unit(b.unit, -1), system)
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
   end
 
   def +(other)
@@ -59,6 +65,8 @@ class Unit < Numeric
     b, a = coerce(other)
     a, b = a.normalize, b.normalize
     Unit.new(a.value + b.value, a.unit, system).in(self)
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
   end
 
   def **(exp)
@@ -67,7 +75,12 @@ class Unit < Numeric
   end
 
   def -(other)
-    self + (-other)
+    raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
+    b, a = coerce(other)
+    a, b = a.normalize, b.normalize
+    Unit.new(a.value - b.value, a.unit, system).in(self)
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
   end
 
   def -@
@@ -85,13 +98,21 @@ class Unit < Numeric
   def ==(other)
     b, a = coerce(other)
     a, b = a.normalize, b.normalize
-    a.value == b.value && a.unit == b.unit
+    a.eql? b
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
+  end
+
+  def eql?(other)
+    Unit === other && value == other.value && unit == other.unit
   end
 
   def <=>(other)
     b, a = coerce(other)
     a, b = a.normalize, b.normalize
     a.value <=> b.value if a.unit == b.unit
+  rescue NoUnitSupport
+    apply_through_coercion(other, __method__)
   end
 
   # Number without dimension
@@ -156,7 +177,7 @@ class Unit < Numeric
     system ||= Unit.default_system
     case object
     when Unit
-      raise TypeError, 'Different unit system' if object.system != system
+      raise TypeError, "Unit system of #{object.inspect} is incompatible with #{system.name}" if object.system != system
       object
     when Array
       system.validate_unit(object)
@@ -168,7 +189,7 @@ class Unit < Numeric
     when Numeric
       Unit.new(object, [], system)
     else
-      raise TypeError, "#{object.class} has no unit support"
+      raise NoUnitSupport, "#{object.inspect} has no unit support"
     end
   end
 
@@ -240,6 +261,19 @@ class Unit < Numeric
     end
 
     self
+  end
+
+  # Given another object and an operator, use the other object's #coerce method
+  # to perform the operation.
+  #
+  # Based on Matrix#apply_through_coercion
+  def apply_through_coercion(obj, oper)
+    coercion = obj.coerce(self)
+    raise TypeError unless coercion.is_a?(Array) && coercion.length == 2
+    first, last = coercion
+    first.send(oper, last)
+  rescue
+    raise TypeError, "#{obj.inspect} can't be coerced into #{self.class}"
   end
 
   class<< self

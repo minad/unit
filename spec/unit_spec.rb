@@ -37,6 +37,31 @@ describe 'Unit' do
     (Unit(2) - -1).should == Unit(3)
   end
 
+  it "should support arithmetic with other classes using #coerce" do
+    (Unit(2) + UnitOne.new).should == Unit(3)
+    (2 + UnitOne.new).should == 3
+    (Unit(2) - UnitOne.new).should == Unit(1)
+    (2 - UnitOne.new).should == 1
+    (Unit(2) * UnitOne.new).should == Unit(2)
+    (2 * UnitOne.new).should == 2
+    (Unit(2) / UnitOne.new).should == Unit(2)
+    (2 / UnitOne.new).should == 2
+
+    (UnitOne.new + Unit(4)).should == Unit(5)
+    (UnitOne.new + 4).should == 5
+    (UnitOne.new - Unit(4)).should == Unit(-3)
+    (UnitOne.new - 4).should == -3
+    (UnitOne.new * Unit(4)).should == Unit(4)
+    (UnitOne.new * 4).should == 4
+    (UnitOne.new / Unit(4)).should == Unit(1, 4)
+    (UnitOne.new / 4).should == 0
+  end
+
+  it "should support logic with other classes using #coerce" do
+    Unit(1).should == UnitOne.new
+    Unit(2).should > UnitOne.new
+  end
+
   it "should support adding through zero" do
     (Unit(0, "m") + Unit(1, "m")).should == Unit(1, "m")
     (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should == Unit(1, "m")
