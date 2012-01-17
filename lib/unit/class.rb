@@ -124,9 +124,7 @@ class Unit < Numeric
 
   # Compatible units can be added
   def compatible?(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.unit == b.unit
+    self.normalize.unit == Unit.to_unit(other, system).normalize.unit
   end
 
   alias_method :compatible_with?, :compatible?
