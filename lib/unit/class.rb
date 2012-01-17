@@ -273,7 +273,7 @@ class Unit < Numeric
     first, last = coercion
     first.send(oper, last)
   rescue
-    raise TypeError, "#{obj.inspect} can't be coerced into #{self.class}"
+    raise TypeError, "#{obj.class} can't be coerced into #{self.class}"
   end
 
   class<< self
