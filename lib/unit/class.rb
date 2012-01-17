@@ -271,7 +271,11 @@ class Unit < Numeric
     coercion = obj.coerce(self)
     raise TypeError unless coercion.is_a?(Array) && coercion.length == 2
     first, last = coercion
-    first.send(oper, last)
+    if first.respond_to?(:public_send)
+      first.public_send(oper, last)
+    else
+      first.send(oper, last)
+    end
   rescue
     raise TypeError, "#{obj.class} can't be coerced into #{self.class}"
   end
