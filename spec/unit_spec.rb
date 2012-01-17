@@ -70,15 +70,22 @@ describe 'Unit' do
     Unit(1.0).should_not eql(UnitOne.new)
   end
 
+  it "should not support adding anything but numeric unless object is coerceable" do
+    expect { Unit(1) + 'string'}.to raise_error(TypeError)
+    expect { Unit(1) + []}.to raise_error(TypeError)
+    expect { Unit(1) + :symbol }.to raise_error(TypeError)
+    expect { Unit(1) + {}}.to raise_error(TypeError)
+  end
+
   it "should support adding through zero" do
     (Unit(0, "m") + Unit(1, "m")).should == Unit(1, "m")
     (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should == Unit(1, "m")
   end
 
   it 'should check unit compatiblity' do
-    lambda {Unit(42, 'm') + Unit(1, 's')}.should raise_error(TypeError)
-    lambda {Unit(42, 'g') + Unit(1, 'm')}.should raise_error(TypeError)
-    lambda {Unit(0, 'g') + Unit(1, 'm')}.should raise_error(TypeError)
+    expect {Unit(42, 'm') + Unit(1, 's')}.to raise_error(TypeError)
+    expect {Unit(42, 'g') + Unit(1, 'm')}.to raise_error(TypeError)
+    expect {Unit(0, 'g') + Unit(1, 'm')}.to raise_error(TypeError)
   end
 
   it 'should support exponentiation' do
@@ -89,7 +96,7 @@ describe 'Unit' do
   end
 
   it 'should not allow units as exponent' do
-    lambda {Unit(42, 'g') ** Unit(1, 'm')}.should raise_error(TypeError)
+    expect { Unit(42, 'g') ** Unit(1, 'm') }.to raise_error(TypeError)
   end
 
   describe "#normalize" do
@@ -185,9 +192,7 @@ describe 'Unit' do
   end
 
   it "should fail comparison on differing units" do
-    lambda do
-      Unit(1, "second") > Unit(1, "meter")
-    end.should raise_error(ArgumentError)
+    expect { Unit(1, "second") > Unit(1, "meter") }.to raise_error(Unit::IncompatbileUnitError)
   end
 
   it "should keep units when the value is zero" do
