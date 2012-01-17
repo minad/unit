@@ -2,7 +2,7 @@
 class Unit < Numeric
   attr_reader :value, :normalized, :unit, :system
 
-  class NoUnitSupport < TypeError; end
+  class IncompatibleUnitError < TypeError; end
 
   def initialize(value, unit, system)
     @system = system
@@ -46,27 +46,33 @@ class Unit < Numeric
   end
 
   def *(other)
-    b, a = coerce(other)
-    Unit.new(a.value * b.value, a.unit + b.unit, system)
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    if Numeric === other
+      other = coerce_numeric(other)
+      Unit.new(other.value * self.value, other.unit + self.unit, system)
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def /(other)
-    b, a = coerce(other)
-    Unit.new(Integer === a.value && Integer === b.value ? Rational(a.value, b.value) : a.value / b.value,
-             a.unit + Unit.power_unit(b.unit, -1), system)
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    if Numeric === other
+      other = coerce_numeric(other)
+      Unit.new(Integer === value && Integer === other.value ?
+               Rational(value, other.value) : value / other.value,
+               unit + Unit.power_unit(other.unit, -1), system)
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def +(other)
-    raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    Unit.new(a.value + b.value, a.unit, system).in(self)
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    if Numeric === other
+      other = coerce_numeric_compatible(other)
+      a, b = self.normalize, other.normalize
+      Unit.new(a.value + b.value, b.unit, system).in(self)
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def **(exp)
@@ -75,12 +81,13 @@ class Unit < Numeric
   end
 
   def -(other)
-    raise TypeError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    Unit.new(a.value - b.value, a.unit, system).in(self)
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    if Numeric === other
+      other = coerce_numeric_compatible(other)
+      a, b = self.normalize, other.normalize
+      Unit.new(a.value - b.value, b.unit, system).in(self)
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def -@
@@ -96,23 +103,26 @@ class Unit < Numeric
   end
 
   def ==(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.eql? b
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    return false unless Numeric === other
+    other = coerce_numeric(other)
+    a, b = self.normalize, other.normalize
+    a.value == b.value && a.unit == b.unit
   end
 
   def eql?(other)
-    Unit === other && value == other.value && unit == other.unit
+    return false unless Numeric === other
+    other = coerce_numeric(other)
+    self.unit == other.unit && self.value.eql?(other.value)
   end
 
   def <=>(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.value <=> b.value if a.unit == b.unit
-  rescue NoUnitSupport
-    apply_through_coercion(other, __method__)
+    if Numeric === other
+      other = coerce_numeric_compatible(other)
+      a, b = self.normalize, other.normalize
+      a.value <=> b.value
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   # Number without dimension
@@ -124,24 +134,23 @@ class Unit < Numeric
 
   # Compatible units can be added
   def compatible?(other)
-    b, a = coerce(other)
-    a, b = a.normalize, b.normalize
-    a.unit == b.unit
+    self.normalize.unit == Unit.to_unit(other, system).normalize.unit
   end
 
   alias_method :compatible_with?, :compatible?
 
   # Convert to other unit
   def in(unit)
-    b, a = coerce(unit)
-    conversion = Unit.new(1, b.unit, system)
-    (a / conversion).normalize * conversion
+    conversion = Unit.new(1, Unit.to_unit(unit, system).unit, system)
+    (self / conversion).normalize * conversion
   end
 
   def in!(unit)
-    b, a = coerce(unit)
-    result = self.in(b)
-    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.unit_string}" unless result.unit == b.unit
+    unit = coerce_object(unit)
+    result = self.in(unit)
+    unless result.unit == unit.unit
+      raise TypeError, "Unexpected #{result.inspect}, expected to be in #{other_unit.unit_string}"
+    end
     result
   end
 
@@ -170,7 +179,7 @@ class Unit < Numeric
   end
 
   def coerce(other)
-    [Unit.to_unit(other, system), self]
+    [coerce_numeric(other), self]
   end
 
   def unit_string(sep = '·')
@@ -252,31 +261,52 @@ class Unit < Numeric
     raise TypeError, "#{obj.class} can't be coerced into #{self.class}"
   end
 
-  class << self
+  def coerce_numeric_compatible(object)
+    object = coerce_numeric(object)
+    raise IncompatibleUnitError, "#{inspect} and #{object.inspect} are incompatible" if !compatible?(object)
+    object
+  end
 
+  def coerce_numeric(object)
+    Unit.numeric_to_unit(object, system)
+  end
+
+  def coerce_object(object)
+    Unit.to_unit(object, system)
+  end
+
+  class << self
     attr_accessor :default_system
 
     def power_unit(unit, pow)
       unit.map {|factor, name, exp| [factor, name, exp * pow] }
     end
 
-    def to_unit(object, system = nil)
+    def numeric_to_unit(object, system = nil)
       system ||= Unit.default_system
       case object
       when Unit
-        raise TypeError, "Unit system of #{object.inspect} is incompatible with #{system.name}" if object.system != system
+        raise IncompatibleUnitError, "Unit system of #{object.inspect} is incompatible with #{system.name}" if object.system != system
         object
-      when Array
-        system.validate_unit(object)
-        Unit.new(1, object, system)
+      when Numeric
+        Unit.new(object, [], system)
+      else
+        raise TypeError, "#{object.class} can't be coerced into Unit"
+      end
+    end
+
+    def to_unit(object, system = nil)
+      system ||= Unit.default_system
+      case object
       when String, Symbol
         unit = system.parse_unit(object.to_s)
         system.validate_unit(unit)
         Unit.new(1, unit, system)
-      when Numeric
-        Unit.new(object, [], system)
+      when Array
+        system.validate_unit(object)
+        Unit.new(1, object, system)
       else
-        raise NoUnitSupport, "#{object.inspect} has no unit support"
+        numeric_to_unit(object, system)
       end
     end
   end
