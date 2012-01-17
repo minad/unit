@@ -220,8 +220,8 @@ class Unit < Numeric
     numbers = @unit.select {|factor, unit, exp| Numeric === unit }
     @unit -= numbers
     numbers.each do |factor, number, exp|
-       raise RuntimeError, 'Numeric unit with factor' if factor != :one
-       @value *= number ** exp
+      raise RuntimeError, 'Numeric unit with factor' if factor != :one
+      @value *= number ** exp
     end
 
     # Reduce units
@@ -274,7 +274,9 @@ class Unit < Numeric
     raise TypeError, "#{obj.inspect} can't be coerced into #{self.class}"
   end
 
-  class<< self
+  class << self
+
     attr_accessor :default_system
+
   end
 end
