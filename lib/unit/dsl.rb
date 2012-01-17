@@ -13,12 +13,12 @@ class Unit < Numeric
     name.to_s.sub(/^per_/, '1/').gsub('_per_', '/').gsub('_', ' ')
   end
 
-  def method_missing(name)
+  def method_missing(name, system = nil)
     if name.to_s =~ /^in_(.*?)(!?)$/
       unit = Unit.method_name_to_unit($1)
       $2.empty? ? self.in(unit) : self.in!(unit)
     else
-      Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+      super(name, system || @system)
     end
   end
 end
