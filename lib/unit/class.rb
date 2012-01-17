@@ -120,7 +120,7 @@ class Unit < Numeric
     normalize.unit.empty?
   end
 
-  alias unitless? dimensionless?
+  alias_method :unitless?, :dimensionless?
 
   # Compatible units can be added
   def compatible?(other)
@@ -129,7 +129,7 @@ class Unit < Numeric
     a.unit == b.unit
   end
 
-  alias compatible_with? compatible?
+  alias_method :compatible_with?, :compatible?
 
   # Convert to other unit
   def in(unit)
