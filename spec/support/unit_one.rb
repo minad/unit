@@ -31,6 +31,10 @@ class UnitOne < Numeric
     1 == other
   end
 
+  def eql?(other)
+    1.eql?(other)
+  end
+
   private
 
   def apply_through_coercion(other, operation)

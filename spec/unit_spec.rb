@@ -18,12 +18,10 @@ describe 'Unit' do
     (Unit(2, 'm') / 3).should == Unit(2, 3, 'm')
     (Unit(2, 'm') / Rational(3, 4)).should == Unit(8, 3, 'm')
     (Unit(2, 'm') / 0.5).should == Unit(4.0, 'm')
-    (Unit(2, 'm') / '2 kg').should == Unit(1.0, 'm/kg')
   end
 
   it 'should support addition' do
     (Unit(42, 'm') + Unit(1, 'km')).should == Unit(1042, 'm')
-    (Unit(2, 'm') + '1 m').should == Unit(3.0, 'm')
   end
 
   it 'should support subtraction' do
@@ -62,6 +60,14 @@ describe 'Unit' do
   it "should support logic with other classes using #coerce" do
     Unit(1).should == UnitOne.new
     Unit(2).should > UnitOne.new
+  end
+
+  it "should support eql comparison" do
+    Unit(1).should eql(Unit(1))
+    Unit(1.0).should_not eql(Unit(1))
+
+    Unit(1).should_not eql(UnitOne.new)
+    Unit(1.0).should_not eql(UnitOne.new)
   end
 
   it "should support adding through zero" do
