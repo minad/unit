@@ -18,12 +18,10 @@ describe 'Unit' do
     (Unit(2, 'm') / 3).should == Unit(2, 3, 'm')
     (Unit(2, 'm') / Rational(3, 4)).should == Unit(8, 3, 'm')
     (Unit(2, 'm') / 0.5).should == Unit(4.0, 'm')
-    (Unit(2, 'm') / '2 kg').should == Unit(1.0, 'm/kg')
   end
 
   it 'should support addition' do
     (Unit(42, 'm') + Unit(1, 'km')).should == Unit(1042, 'm')
-    (Unit(2, 'm') + '1 m').should == Unit(3.0, 'm')
   end
 
   it 'should support subtraction' do
@@ -64,15 +62,30 @@ describe 'Unit' do
     Unit(2).should > UnitOne.new
   end
 
+  it "should support eql comparison" do
+    Unit(1).should eql(Unit(1))
+    Unit(1.0).should_not eql(Unit(1))
+
+    Unit(1).should_not eql(UnitOne.new)
+    Unit(1.0).should_not eql(UnitOne.new)
+  end
+
+  it "should not support adding anything but numeric unless object is coerceable" do
+    expect { Unit(1) + 'string'}.to raise_error(TypeError)
+    expect { Unit(1) + []}.to raise_error(TypeError)
+    expect { Unit(1) + :symbol }.to raise_error(TypeError)
+    expect { Unit(1) + {}}.to raise_error(TypeError)
+  end
+
   it "should support adding through zero" do
     (Unit(0, "m") + Unit(1, "m")).should == Unit(1, "m")
     (Unit(1, "m") + Unit(-1, "m") + Unit(1, "m")).should == Unit(1, "m")
   end
 
   it 'should check unit compatiblity' do
-    lambda {Unit(42, 'm') + Unit(1, 's')}.should raise_error(TypeError)
-    lambda {Unit(42, 'g') + Unit(1, 'm')}.should raise_error(TypeError)
-    lambda {Unit(0, 'g') + Unit(1, 'm')}.should raise_error(TypeError)
+    expect {Unit(42, 'm') + Unit(1, 's')}.to raise_error(TypeError)
+    expect {Unit(42, 'g') + Unit(1, 'm')}.to raise_error(TypeError)
+    expect {Unit(0, 'g') + Unit(1, 'm')}.to raise_error(TypeError)
   end
 
   it 'should support exponentiation' do
@@ -83,7 +96,7 @@ describe 'Unit' do
   end
 
   it 'should not allow units as exponent' do
-    lambda {Unit(42, 'g') ** Unit(1, 'm')}.should raise_error(TypeError)
+    expect { Unit(42, 'g') ** Unit(1, 'm') }.to raise_error(TypeError)
   end
 
   describe "#normalize" do
@@ -179,9 +192,7 @@ describe 'Unit' do
   end
 
   it "should fail comparison on differing units" do
-    lambda do
-      Unit(1, "second") > Unit(1, "meter")
-    end.should raise_error(ArgumentError)
+    expect { Unit(1, "second") > Unit(1, "meter") }.to raise_error(Unit::IncompatbileUnitError)
   end
 
   it "should keep units when the value is zero" do

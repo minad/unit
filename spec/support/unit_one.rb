@@ -1,7 +1,7 @@
 # Example test class for coercion
 #
 # UnitOne behaves as Unit(1) when added to a Unit, and as 1 when added to anything else.
-class UnitOne
+class UnitOne < Numeric
   def coerce(other)
     case other
     when Unit
@@ -25,6 +25,14 @@ class UnitOne
 
   def *(other)
     apply_through_coercion(other, __method__)
+  end
+
+  def ==(other)
+    1 == other
+  end
+
+  def eql?(other)
+    1.eql?(other)
   end
 
   private
