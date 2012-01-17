@@ -171,26 +171,6 @@ class Unit < Numeric
     [Unit.to_unit(other, system), self]
   end
 
-  def self.to_unit(object, system = nil)
-    system ||= Unit.default_system
-    case object
-    when Unit
-      raise TypeError, "Unit system of #{object.inspect} is incompatible with #{system.name}" if object.system != system
-      object
-    when Array
-      system.validate_unit(object)
-      Unit.new(1, object, system)
-    when String, Symbol
-      unit = system.parse_unit(object.to_s)
-      system.validate_unit(unit)
-      Unit.new(1, unit, system)
-    when Numeric
-      Unit.new(object, [], system)
-    else
-      raise NoUnitSupport, "#{object.inspect} has no unit support"
-    end
-  end
-
   def unit_string(sep = '·')
     (unit_list(@unit.select {|factor, name, exp| exp >= 0 }) +
      unit_list(@unit.select {|factor, name, exp| exp < 0 })).join(sep)
@@ -208,10 +188,6 @@ class Unit < Numeric
       units << unit
     end
     units.sort
-  end
-
-  def self.power_unit(unit, pow)
-    unit.map {|factor, name, exp| [factor, name, exp * pow] }
   end
 
   # Reduce units and factors
@@ -277,6 +253,30 @@ class Unit < Numeric
   class << self
 
     attr_accessor :default_system
+
+    def power_unit(unit, pow)
+      unit.map {|factor, name, exp| [factor, name, exp * pow] }
+    end
+
+    def to_unit(object, system = nil)
+      system ||= Unit.default_system
+      case object
+      when Unit
+        raise IncompatbileUnitError, "Unit system of #{object.inspect} is incompatible with #{system.name}" if object.system != system
+        object
+      when Numeric
+        Unit.new(object, [], system)
+      when Array
+        system.validate_unit(object)
+        Unit.new(1, object, system)
+      when String, Symbol
+        unit = system.parse_unit(object.to_s)
+        system.validate_unit(unit)
+        Unit.new(1, unit, system)
+      else
+        raise TypeError, "#{object.class} cannot be converted to a Unit"
+      end
+    end
 
   end
 end
