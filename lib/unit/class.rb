@@ -131,15 +131,17 @@ class Unit < Numeric
 
   # Convert to other unit
   def in(unit)
-    b, a = coerce(unit)
-    conversion = Unit.new(1, b.unit, system)
-    (a / conversion).normalize * conversion
+    other_unit = Unit.to_unit(unit, system).unit
+    conversion = Unit.new(1, other_unit, system)
+    (self / conversion).normalize * conversion
   end
 
   def in!(unit)
-    b, a = coerce(unit)
-    result = self.in(b)
-    raise TypeError, "Unexpected #{result.inspect}, expected to be in #{b.unit_string}" unless result.unit == b.unit
+    other_unit = Unit.to_unit(unit, system)
+    result = self.in(unit)
+    unless result.unit == other_unit.unit
+      raise TypeError, "Unexpected #{result.inspect}, expected to be in #{other_unit.unit_string}"
+    end
     result
   end
 
@@ -168,7 +170,11 @@ class Unit < Numeric
   end
 
   def coerce(other)
-    [Unit.to_unit(other, system), self]
+    if other.kind_of? Numeric
+      [Unit.to_unit(other, system), self]
+    else
+      raise ArgumentError, "Cannot coerce #{other.class} into #{self.class}"
+    end
   end
 
   def unit_string(sep = '·')
@@ -177,6 +183,12 @@ class Unit < Numeric
   end
 
   private
+
+  def to_compatible_unit!(other)
+    other = Unit.to_unit(other,system)
+    raise IncompatbileUnitError, "#{inspect} and #{other.inspect} are incompatible" if !compatible?(other)
+    other
+  end
 
   def unit_list(list)
     units = []
