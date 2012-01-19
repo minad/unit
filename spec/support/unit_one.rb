@@ -1,7 +1,7 @@
 # Example test class for coercion
 #
 # UnitOne behaves as Unit(1) when added to a Unit, and as 1 when added to anything else.
-class UnitOne < Numeric
+class UnitOne
   def coerce(other)
     case other
     when Unit

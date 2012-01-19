@@ -103,16 +103,17 @@ class Unit < Numeric
   end
 
   def ==(other)
-    return false unless Numeric === other
-    other = coerce_numeric(other)
-    a, b = self.normalize, other.normalize
-    a.value == b.value && a.unit == b.unit
+    if Numeric === other
+      other = coerce_numeric(other)
+      a, b = self.normalize, other.normalize
+      a.value == b.value && a.unit == b.unit
+    else
+      apply_through_coercion(other, __method__)
+    end
   end
 
   def eql?(other)
-    return false unless Numeric === other
-    other = coerce_numeric(other)
-    self.unit == other.unit && self.value.eql?(other.value)
+    Unit === other && value.eql?(other.value) && unit == other.unit
   end
 
   def <=>(other)
