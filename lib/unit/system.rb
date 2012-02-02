@@ -28,7 +28,8 @@ class Unit < Numeric
         if File.exist?(input)
           data = YAML.load_file(input)
         else
-          data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))
+          load(input.to_sym)
+          return
         end
       when Symbol
         data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))

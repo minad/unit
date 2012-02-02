@@ -12,11 +12,22 @@ describe Unit::System do
       Unit(1, "pim", system).should == Unit(3.14159, "m", system)
     end
 
-    it "should load a file" do
-      test_file = File.join(File.dirname(__FILE__), "yml", "filename.yml")
-      system.load(:si)
-      system.load(test_file)
-      Unit(2, "dzm", system).should == Unit(24, "m", system)
+    context "when passed a String" do
+      context "that is a filename" do
+        it "should load the file" do
+          filename = File.join(File.dirname(__FILE__), "yml", "filename.yml")
+          system.load(:si)
+          system.load(filename)
+          Unit(2, "dzm", system).should == Unit(24, "m", system)
+        end
+      end
+
+      context "that is not a filename" do
+        it "should load the built-in system of that name" do
+          system.load("si")
+          lambda { Unit(2, 'm', system) }.should_not raise_exception
+        end
+      end
     end
 
     context "when passed a Hash" do
