@@ -21,8 +21,7 @@ class Unit < Numeric
     def load(input)
       case input
       when Hash
-        raise "Invalid hash format to load system" unless (input["units"] && input["units"].first.last['def']) || input.first.last['def']
-        data = input['units'] || input
+        data = input
       when IO
         data = YAML.load(input.read)
       when String
@@ -35,33 +34,8 @@ class Unit < Numeric
         data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))
       end
 
-      (data['factors'] || {}).each do |name, factor|
-        name = name.to_sym
-        symbols = [factor['sym'] || []].flatten
-        factor['def'] =~ /^(\d+)\^(-?\d+)$/
-        base = $1.to_i
-        exp = $2.to_i
-        value = base ** exp
-        $stderr.puts "Factor #{name} already defined" if @factor[name]
-        @factor[name] = { :symbol => symbols.first, :value => value }
-        symbols.each do |sym|
-          $stderr.puts "Factor symbol #{sym} for #{name} already defined" if @factor_symbol[name]
-          @factor_symbol[sym] = name
-        end
-        @factor_symbol[name.to_s] = @factor_value[value] = name
-      end
-
-      (data['units'] || {}).each do |name, unit|
-        name = name.to_sym
-        symbols = [unit['sym'] || []].flatten
-        $stderr.puts "Unit #{name} already defined" if @unit[name]
-        @unit[name] = { :symbol => symbols.first, :def => parse_unit(unit['def'])  }
-        symbols.each do |sym|
-          $stderr.puts "Unit symbol #{sym} for #{name} already defined" if @unit_symbol[name]
-          @unit_symbol[sym] = name
-        end
-        @unit_symbol[name.to_s] = name
-      end
+      load_factors(data['factors']) if data['factors']
+      load_units(data['units']) if data['units']
 
       @unit.each {|name, unit| validate_unit(unit[:def]) }
 
@@ -146,7 +120,37 @@ class Unit < Numeric
                 end
     end
 
-    public
+    def load_factors(factors)
+      factors.each do |name, factor|
+        name = name.to_sym
+        symbols = [factor['sym'] || []].flatten
+        base, exp = factor["def"].to_s.split("^").map { |value| Integer(value) }
+        exp ||= 1
+        raise "Invalid definition for factor #{name}" unless base
+        value = base ** exp
+        $stderr.puts "Factor #{name} already defined" if @factor[name]
+        @factor[name] = { :symbol => symbols.first, :value => value }
+        symbols.each do |sym|
+          $stderr.puts "Factor symbol #{sym} for #{name} already defined" if @factor_symbol[name]
+          @factor_symbol[sym] = name
+        end
+        @factor_symbol[name.to_s] = @factor_value[value] = name
+      end
+    end
+
+    def load_units(units)
+      units.each do |name, unit|
+        name = name.to_sym
+        symbols = [unit['sym'] || []].flatten
+        $stderr.puts "Unit #{name} already defined" if @unit[name]
+        @unit[name] = { :symbol => symbols.first, :def => parse_unit(unit['def'])  }
+        symbols.each do |sym|
+          $stderr.puts "Unit symbol #{sym} for #{name} already defined" if @unit_symbol[name]
+          @unit_symbol[sym] = name
+        end
+        @unit_symbol[name.to_s] = name
+      end
+    end
 
     SI = new('SI') do |system|
       system.load(:si)
