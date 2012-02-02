@@ -15,6 +15,9 @@ class Unit < Numeric
       @factor_symbol = {'one' => :one}
       @factor_value = {1 => :one}
 
+      @loaded_systems = []
+      @loaded_filenames = []
+
       yield(self) if block_given?
     end
 
@@ -26,13 +29,17 @@ class Unit < Numeric
         data = YAML.load(input.read)
       when String
         if File.exist?(input)
+          return if @loaded_filenames.include?(input)
           data = YAML.load_file(input)
+          @loaded_filenames << input
         else
           load(input.to_sym)
           return
         end
       when Symbol
+        return if @loaded_systems.include?(input)
         data = YAML.load_file(File.join(File.dirname(__FILE__), 'systems', "#{input}.yml"))
+        @loaded_systems << input
       end
 
       load_factors(data['factors']) if data['factors']

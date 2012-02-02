@@ -76,5 +76,23 @@ describe Unit::System do
         end
       end
     end
+
+    context "when called on the same filename a second time" do
+      it "should be a no-op" do
+        $stderr.should_not_receive(:puts)
+        test_file = File.join(File.dirname(__FILE__), "yml", "filename.yml")
+        system.load(:si)
+        system.load(test_file)
+        lambda { system.load(test_file) }.should_not raise_exception
+      end
+    end
+
+    context "when called on the same symbol a second time" do
+      it "should be a no-op" do
+        $stderr.should_not_receive(:puts)
+        system.load(:si)
+        lambda { system.load(:si) }.should_not raise_exception
+      end
+    end
   end
 end
