@@ -9,10 +9,6 @@ units:
   carat:
     def: 200 milligram
 
-  liter:
-    sym: [l, L]
-    def: 1 decimeter^3
-
   calorie:
     sym: cal
     def: 4184 millijoule
