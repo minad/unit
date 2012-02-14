@@ -213,6 +213,14 @@ describe 'Unit' do
     Unit(Rational(1,3), "m").approx.should == Unit(1.0/3.0, "m")
   end
 
+  it "should be able to round and return a unit" do
+    Unit(Rational(1,3), "m").round.should == Unit(0, "m")
+    Unit(Rational(2,3), "m").round.should == Unit(1, "m")
+    Unit(0.1, "m").round.should == Unit(0, "m")
+    Unit(0.5, "m").round.should == Unit(1, "m")
+    Unit(1, "m").round.should == Unit(1, "m")
+  end
+
 end
 
 describe "Unit DSL", :dsl => true do

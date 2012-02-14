@@ -179,6 +179,10 @@ class Unit < Numeric
     Unit.new(self.to_f, unit, system)
   end
 
+  def round
+    Unit.new(value.round, unit, system)
+  end
+
   def coerce(other)
     [coerce_numeric(other), self]
   end
