@@ -35,3 +35,19 @@ units:
   knot:
     sym: kt
     def: nauticalmile / hour
+
+  gallon:
+    sym: [gal, gallons]
+    def: 231 inch^3
+  quart:
+    sym: [qt, quarts]
+    def: 1 gallon / 4
+  pint:
+    sym: [pt, pints]
+    def: 1 gallon / 8
+  cup:
+    sym: cups
+    def: 1 gallon / 16
+  fluid_ounce:
+    sym: [fl_oz, fluid_ounces]
+    def: 1 gallon / 128

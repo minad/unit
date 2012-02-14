@@ -24,6 +24,9 @@ units:
     def: candela
 
   # Derived SI units
+  liter:
+    sym: [l, L]
+    def: 1 decimeter^3
   radiant:
     sym: [rad, radian]
     def: 1
