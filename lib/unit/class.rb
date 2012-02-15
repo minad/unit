@@ -150,7 +150,7 @@ class Unit < Numeric
     unit = coerce_object(unit)
     result = self.in(unit)
     unless result.unit == unit.unit
-      raise TypeError, "Unexpected #{result.inspect}, expected to be in #{other_unit.unit_string}"
+      raise TypeError, "Unexpected #{result.inspect}, expected to be in #{unit.unit_string}"
     end
     result
   end
@@ -177,6 +177,10 @@ class Unit < Numeric
 
   def approx
     Unit.new(self.to_f, unit, system)
+  end
+
+  def round
+    Unit.new(value.round, unit, system)
   end
 
   def coerce(other)
