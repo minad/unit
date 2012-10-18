@@ -158,7 +158,7 @@ describe 'Unit' do
 
   it 'should reduce units' do
     Unit(1, "joule/kilogram").normalize.unit.should == [[:one, :meter, 2], [:one, :second, -2]].sort
-    Unit(1, "megaton/kilometer").unit.should == [[:kilo, :ton, 1], [:one, :meter, -1]].reverse
+    Unit(1, "megaton/kilometer").unit.should == [[:one, :meter, -1], [:kilo, :ton, 1]]
   end
 
   it 'should work with floating point values' do

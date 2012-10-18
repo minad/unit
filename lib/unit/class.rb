@@ -239,15 +239,16 @@ class Unit < Numeric
 
     # Reduce factors
     @unit.each_with_index do |(factor1, _, exp1), k|
-      next if exp1 < 0
-      @unit.each_with_index do |(factor2, _, exp2), j|
-        if exp2 < 0 && exp2 == -exp1
-          q, r = @system.factor[factor1][:value].divmod @system.factor[factor2][:value]
-          if r == 0 && new_factor = @system.factor_value[q]
-            @unit[k] = @unit[k].dup
-            @unit[j] = @unit[j].dup
-            @unit[k][0] = new_factor
-            @unit[j][0] = :one
+      if exp1 > 0
+        @unit.each_with_index do |(factor2, _, exp2), j|
+          if exp2 == -exp1
+            q, r = @system.factor[factor1][:value].divmod @system.factor[factor2][:value]
+            if r == 0 && new_factor = @system.factor_value[q]
+              @unit[k] = @unit[k].dup
+              @unit[j] = @unit[j].dup
+              @unit[k][0] = new_factor
+              @unit[j][0] = :one
+            end
           end
         end
       end
