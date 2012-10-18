@@ -235,9 +235,9 @@ class Unit < Numeric
     end
 
     # Reduce factors
-    @unit.each_with_index do |(factor1, unit1, exp1), k|
+    @unit.each_with_index do |(factor1, _, exp1), k|
       next if exp1 < 0
-      @unit.each_with_index do |(factor2, unit2, exp2), j|
+      @unit.each_with_index do |(factor2, _, exp2), j|
         if exp2 < 0 && exp2 == -exp1
           q, r = @system.factor[factor1][:value].divmod @system.factor[factor2][:value]
           if r == 0 && new_factor = @system.factor_value[q]

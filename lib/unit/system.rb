@@ -98,7 +98,7 @@ class Unit < Numeric
 
     REAL   = /^-?(?:(?:\d*\.\d+|\d+\.\d*)(?:[eE][-+]?\d+)?|\d+[eE][-+]?\d+)$/
     DEC    = /^-?\d+$/
-    SYMBOL = /^[a-zA-Z_°'"][\w_°'"]*$/
+    SYMBOL = /^[a-zA-Z_°'"][\w°'"]*$/
     OPERATOR = { '/' => ['/', 1], '*' => ['*', 1], '·' => ['*', 1], '^' => ['^', 2], '**' => ['^', 2] }
     OPERATOR_TOKENS = OPERATOR.keys.sort_by {|x| -x.size }. map {|x| Regexp.quote(x) }
     VALUE_TOKENS = [REAL.source[1..-2], DEC.source[1..-2], SYMBOL.source[1..-2]]
