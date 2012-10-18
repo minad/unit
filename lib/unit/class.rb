@@ -57,9 +57,12 @@ class Unit < Numeric
   def /(other)
     if Numeric === other
       other = coerce_numeric(other)
-      Unit.new(Integer === value && Integer === other.value ?
-               Rational(value, other.value) : value / other.value,
-               unit + Unit.power_unit(other.unit, -1), system)
+      result = if Integer === value && Integer === other.value
+                 other.value == 1 ? value : Rational(value, other.value)
+               else
+                 value / other.value
+               end
+      Unit.new(result, unit + Unit.power_unit(other.unit, -1), system)
     else
       apply_through_coercion(other, __method__)
     end
