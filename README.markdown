@@ -3,6 +3,8 @@ README
 
 Units introduces computation with units to ruby.
 
+[![Build Status](https://secure.travis-ci.org/minad/unit.png?branch=master)](http://travis-ci.org/minad/unit)[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/minad/unit)
+
 Usage
 -----
 
