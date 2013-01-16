@@ -182,8 +182,8 @@ class Unit < Numeric
     Unit.new(self.to_f, unit, system)
   end
 
-  def round
-    Unit.new(value.round, unit, system)
+  def round(precision = 0)
+    Unit.new(value.round(precision), unit, system)
   end
 
   def coerce(other)
