@@ -4,7 +4,11 @@ class Numeric
   end
 
   def method_missing(name, system = nil)
-    Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+    begin
+      Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+    rescue TypeError
+      super.send(:method_missing, name)
+    end
   end
 end
 
