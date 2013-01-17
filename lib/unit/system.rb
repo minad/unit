@@ -45,11 +45,7 @@ class Unit < Numeric
       load_factors(data['factors']) if data['factors']
       load_units(data['units']) if data['units']
 
-      @unit.each do |name, unit|
-        defs = unit.delete(:defs)
-        unit[:def] = parse_unit(defs) if defs
-        validate_unit(unit[:def])
-      end
+      @unit.each {|name, unit| validate_unit(unit[:def]) }
 
       true
     end
@@ -155,7 +151,7 @@ class Unit < Numeric
         name = name.to_sym
         symbols = [unit['sym'] || []].flatten
         $stderr.puts "Unit #{name} already defined" if @unit[name]
-        @unit[name] = { :symbol => symbols.first, :defs => unit['def'] }
+        @unit[name] = { :symbol => symbols.first, :def => parse_unit(unit['def'])  }
         symbols.each do |sym|
           $stderr.puts "Unit symbol #{sym} for #{name} already defined" if @unit_symbol[name]
           @unit_symbol[sym] = name
