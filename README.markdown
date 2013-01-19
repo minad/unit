@@ -2,7 +2,7 @@ README
 ===
 **Unit** introduces computational units to Ruby. It offers built-in support for binary, mathematical, SI, imperial, scientific and temporal units, and a simple interface for adding your own, custom units.
 
-[![Build Status](https://secure.travis-ci.org/minad/unit.png?branch=master)](http://travis-ci.org/minad/unit) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/minad/unit)
+[![Gem Version](https://badge.fury.io/rb/unit.png)](http://badge.fury.io/rb/unit) [![Dependency Status](https://gemnasium.com/minad/unit.png)](https://gemnasium.com/minad/unit) [![Build Status](https://secure.travis-ci.org/minad/unit.png?branch=master)](http://travis-ci.org/minad/unit) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/minad/unit)
 
 - Define units for operands to avoid the inevitable mistakes that plague unit-less operations.
 - Perform complex mathematical operations while respecting the units of each operand.
