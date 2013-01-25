@@ -7,6 +7,7 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = 'Scientific unit support for ruby for calculations'
   s.homepage = %q{http://github.com/minad/unit}
+  s.license = 'MIT'
 
   s.authors = ["Daniel Mendler", "Chris Cashwell"]
   s.date  = Date.today.to_s
