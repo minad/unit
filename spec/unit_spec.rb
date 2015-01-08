@@ -153,6 +153,26 @@ describe 'Unit' do
     (Unit('5 cm') - Unit('1 cm')).to_s.should == '4 cm'
   end
 
+  describe "#value_string" do
+    it 'should behave like to_s normally' do
+      Unit(1, "liter").send(:value_string).should == "1"
+      Unit(0.5, "parsec").send(:value_string).should == "0.5"
+    end
+
+    it 'should wrap fractions in parentheses' do
+      Unit(Rational(1, 2), "m").send(:value_string).should == "(1/2)"
+    end
+
+    it 'should show reduced fractions' do
+      Unit(Rational(16, 6), "m").send(:value_string).should == "(8/3)"
+    end
+
+    it 'should not show 1 in the denominator' do
+      Unit(Rational(1), "foot").send(:value_string).should == "1"
+      Unit(Rational(4, 1), "inch").send(:value_string).should == "4"
+    end
+  end
+
   it 'should support round trip through to_s' do
     Unit(Unit('(1/2) cm').to_s).should == Unit('(1/2) cm')
   end
