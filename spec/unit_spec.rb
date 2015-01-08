@@ -149,6 +149,34 @@ describe 'Unit' do
     Unit(7, "joule").normalize.to_s.should == '7000 g·m^2·s^-2'
   end
 
+  it 'should have a pretty string representation after subtraction' do
+    (Unit('5 cm') - Unit('1 cm')).to_s.should == '4 cm'
+  end
+
+  describe "#value_string" do
+    it 'should behave like to_s normally' do
+      Unit(1, "liter").send(:value_string).should == "1"
+      Unit(0.5, "parsec").send(:value_string).should == "0.5"
+    end
+
+    it 'should wrap fractions in parentheses' do
+      Unit(Rational(1, 2), "m").send(:value_string).should == "(1/2)"
+    end
+
+    it 'should show reduced fractions' do
+      Unit(Rational(16, 6), "m").send(:value_string).should == "(8/3)"
+    end
+
+    it 'should not show 1 in the denominator' do
+      Unit(Rational(1), "foot").send(:value_string).should == "1"
+      Unit(Rational(4, 1), "inch").send(:value_string).should == "4"
+    end
+  end
+
+  it 'should support round trip through to_s' do
+    Unit(Unit('(1/2) cm').to_s).should == Unit('(1/2) cm')
+  end
+
   it 'should parse units' do
     Unit(1, 'KiB s^-1').unit.should == [[:kibi, :byte, 1], [:one, :second, -1]].sort
     Unit(1, 'KiB/s').unit.should == [[:kibi, :byte, 1], [:one, :second, -1]].sort

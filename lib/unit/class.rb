@@ -159,11 +159,11 @@ class Unit < Numeric
   end
 
   def inspect
-    unit.empty? ? %{Unit("#{value}")} : %{Unit("#{value} #{unit_string('.')}")}
+    unit.empty? ? %{Unit("#{value}")} : %{Unit("#{value_string} #{unit_string('.')}")}
   end
 
   def to_s
-    unit.empty? ? value.to_s : "#{value} #{unit_string}"
+    unit.empty? ? value.to_s : "#{value_string} #{unit_string}"
   end
 
   def to_tex
@@ -188,6 +188,18 @@ class Unit < Numeric
 
   def coerce(other)
     [coerce_numeric(other), self]
+  end
+
+  def value_string
+    if Rational === value
+      if value.denominator == 1
+        value.numerator.to_s
+      else
+        value.inspect
+      end
+    else
+      value.to_s
+    end
   end
 
   def unit_string(sep = '·')
