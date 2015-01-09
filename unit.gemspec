@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
 
   s.authors = ["Daniel Mendler", "Chris Cashwell"]
-  s.date  = Date.today.to_s
+  s.date  = Time.now.strftime('%Y-%m-%d')
   s.email = ["mail@daniel-mendler.de"]
 
   s.rubyforge_project = s.name

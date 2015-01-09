@@ -5,6 +5,8 @@ class Numeric
 
   def method_missing(name, system = nil)
     Unit.to_unit(Unit.method_name_to_unit(name), system) * self
+  rescue TypeError
+    super
   end
 end
 
