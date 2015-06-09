@@ -183,7 +183,7 @@ class Unit < Numeric
   end
 
   def round(precision = 0)
-    Unit.new(value.round(precision))
+    Unit.new(value.round(precision), unit, system)
   end
 
   def coerce(other)
