@@ -5,6 +5,7 @@ require 'date'
 Gem::Specification.new do |s|
   s.name = 'unit'
   s.version = Unit::VERSION
+  s.description =
   s.summary = 'Scientific unit support for ruby for calculations'
   s.homepage = 'http://github.com/minad/unit'
   s.license = 'MIT'
