@@ -259,7 +259,7 @@ describe 'Unit' do
 
 end
 
-describe "Unit DSL", :dsl => true do
+describe "Unit DSL", dsl: true do
   it 'should provide method sugar' do
     1.meter.should == Unit('1 meter')
     1.meter_per_second.should == Unit('1 m/s')

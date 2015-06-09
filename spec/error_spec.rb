@@ -18,7 +18,7 @@ describe "Errors" do
       )
     end
 
-    it "should have a nice error message using the DSL", :dsl => true do
+    it "should have a nice error message using the DSL", dsl: true do
       unit = Unit(1000, "m / s")
       expect { unit.in_seconds! }.to(
         raise_error(TypeError, %{Unexpected #{unit.inspect}, expected to be in s})

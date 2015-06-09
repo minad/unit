@@ -183,7 +183,7 @@ class Unit < Numeric
   end
 
   def round(precision = 0)
-    Unit.new(RUBY_VERSION > '1.9' ? value.round(precision) : ((value * 10**precision).round.to_f / 10**precision), unit, system)
+    Unit.new(value.round(precision))
   end
 
   def coerce(other)

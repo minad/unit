@@ -11,7 +11,7 @@ class Unit < Numeric
       @unit_symbol = {}
 
       # one is internal trivial factor
-      @factor = {:one => {:symbol => 'one', :value => 1} }
+      @factor = {one: {symbol: 'one', value: 1} }
       @factor_symbol = {'one' => :one}
       @factor_value = {1 => :one}
 
@@ -137,7 +137,7 @@ class Unit < Numeric
         raise "Invalid definition for factor #{name}" unless base
         value = base ** exp
         $stderr.puts "Factor #{name} already defined" if @factor[name]
-        @factor[name] = { :symbol => symbols.first, :value => value }
+        @factor[name] = { symbol: symbols.first, value: value }
         symbols.each do |sym|
           $stderr.puts "Factor symbol #{sym} for #{name} already defined" if @factor_symbol[name]
           @factor_symbol[sym] = name
@@ -151,7 +151,7 @@ class Unit < Numeric
         name = name.to_sym
         symbols = [unit['sym'] || []].flatten
         $stderr.puts "Unit #{name} already defined" if @unit[name]
-        @unit[name] = { :symbol => symbols.first, :def => parse_unit(unit['def'])  }
+        @unit[name] = { symbol: symbols.first, def: parse_unit(unit['def'])  }
         symbols.each do |sym|
           $stderr.puts "Unit symbol #{sym} for #{name} already defined" if @unit_symbol[name]
           @unit_symbol[sym] = name
