@@ -6,7 +6,7 @@ describe "Errors" do
     it "should have a nice error message" do
       a = Unit(1, "meter")
       b = Unit(1, "second")
-      lambda { a + b }.should raise_error(TypeError, "#{a.inspect} and #{b.inspect} are incompatible")
+      expect { a + b }.to raise_error(TypeError, "#{a.inspect} and #{b.inspect} are incompatible")
     end
   end
 
