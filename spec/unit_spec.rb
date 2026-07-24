@@ -262,6 +262,15 @@ describe 'Unit' do
     expect(Unit(1, "kilometer/hour").in("meter/second")).to eq(Unit(5, 18, 'meter/second'))
   end
 
+  it 'should extract the bare value in a target unit' do
+    expect(Unit(1, "kilometer").value_in("meter")).to eq(1000)
+    expect(Unit(1, "kilometer/hour").value_in("meter/second")).to eq(Rational(5, 18))
+  end
+
+  it 'should raise when value_in is given an incompatible unit' do
+    expect { Unit(1, "meter").value_in("second") }.to raise_error(TypeError)
+  end
+
   it 'should have a working compatible? method' do
     expect(Unit(7, "meter").compatible?('kilogram')).to eq(false)
     expect(Unit(3, "parsec").compatible_with?('meter')).to eq(true)
