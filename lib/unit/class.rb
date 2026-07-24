@@ -289,6 +289,17 @@ class Unit < Numeric
     result
   end
 
+  # Converts +self+ to +unit+ and returns the bare numeric value, dropping
+  # the dimension. Builds on +#in!+, so a dimensionally incompatible +unit+
+  # raises +TypeError+ rather than returning a coerced number with residual
+  # units.
+  #
+  #   Unit(1, "kilometer").value_in("meter")  # => 1000
+  #   Unit(1, "meter").value_in("volt")       # raises TypeError
+  def value_in(unit)
+    in!(unit).value
+  end
+
   def inspect
     unit.empty? ? %{Unit("#{value}")} : %{Unit("#{value_string} #{unit_string('.')}")}
   end
